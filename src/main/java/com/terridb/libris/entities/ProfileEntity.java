@@ -38,7 +38,4 @@ public class ProfileEntity extends BaseEntity {
     @OneToMany(mappedBy = "profile")
     private Set<ListEntity> lists;
 
-//    todo readingGoals
-//    todo stats
-
 }
