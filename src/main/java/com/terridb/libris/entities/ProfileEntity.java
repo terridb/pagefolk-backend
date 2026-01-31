@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -17,7 +18,7 @@ public class ProfileEntity extends BaseEntity {
     private boolean deleted = false;
 
     @OneToMany(mappedBy = "profile")
-    private Set<RatingEntity> ratings;
+    private Set<RatingEntity> ratings = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -25,7 +26,7 @@ public class ProfileEntity extends BaseEntity {
             joinColumns = @JoinColumn(name = "profile_id"),
             inverseJoinColumns = @JoinColumn(name = "book_id")
     )
-    private Set<BookEntity> favoriteBooks;
+    private Set<BookEntity> favoriteBooks = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -33,9 +34,9 @@ public class ProfileEntity extends BaseEntity {
             joinColumns = @JoinColumn(name = "profile_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id")
     )
-    private Set<AuthorEntity> favoriteAuthors;
+    private Set<AuthorEntity> favoriteAuthors = new HashSet<>();
 
     @OneToMany(mappedBy = "profile")
-    private Set<ListEntity> lists;
+    private Set<ListEntity> lists = new HashSet<>();
 
 }
