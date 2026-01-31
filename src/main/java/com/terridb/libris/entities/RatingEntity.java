@@ -20,5 +20,7 @@ public class RatingEntity extends BaseEntity {
     @JoinColumn(name = "book_id")
     private BookEntity book;
 
-//    user
+    @ManyToOne
+    @JoinColumn(name = "profile_id")
+    private ProfileEntity profile;
 }

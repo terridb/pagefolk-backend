@@ -45,5 +45,7 @@ public class BookEntity extends BaseEntity {
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RatingEntity> ratings;
 
-//    books in series
+    @ManyToOne
+    @JoinColumn(name = "series_id")
+    private BookSeriesEntity series;
 }
