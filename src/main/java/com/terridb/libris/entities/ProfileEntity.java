@@ -16,7 +16,7 @@ public class ProfileEntity extends BaseEntity {
     private String imageUrl;
     private boolean deleted = false;
 
-    @OneToMany(mappedBy = "profiles")
+    @OneToMany(mappedBy = "profile")
     private Set<RatingEntity> ratings;
 
     @ManyToMany
