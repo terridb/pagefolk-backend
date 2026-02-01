@@ -5,6 +5,7 @@ import com.terridb.libris.entities.BookSeriesEntity;
 import com.terridb.libris.entities.GenreEntity;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ public class BookSimpleResponseDto {
     private Long id;
     private String title;
     private String imageUrl;
-    private int averageRating;
+    private BigDecimal averageRating;
+    private int ratingCount;
     private Set<AuthorResponseDto> authors;
 }

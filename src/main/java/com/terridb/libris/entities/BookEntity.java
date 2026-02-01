@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +27,8 @@ public class BookEntity extends BaseEntity {
     private String description;
 
     private String imageUrl;
+    private BigDecimal averageRating;
+    private int ratingCount;
 
     @ManyToMany
     @JoinTable(

@@ -5,8 +5,9 @@ import com.terridb.libris.dtos.bookseries.BookSeriesSimpleResponseDto;
 import com.terridb.libris.dtos.genre.GenreResponseDto;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 @Setter
 public class BookResponseDto {
@@ -16,8 +17,9 @@ public class BookResponseDto {
     private LocalDate releaseDate;
     private String description;
     private String imageUrl;
-    private int averageRating;
-    private Set<AuthorResponseDto> authors;
+    private BigDecimal averageRating;
+    private int ratingCount;
+    private List<AuthorResponseDto> authors;
     private BookSeriesSimpleResponseDto series;
-    private Set<GenreResponseDto> genres;
+    private List<GenreResponseDto> genres;
 }

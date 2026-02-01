@@ -1,8 +1,6 @@
 package com.terridb.libris.dtos.book;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -23,7 +21,18 @@ public class BookRequestDto {
     @Size(message = "Description must be between 10 and 5000 characters", min = 10, max = 5000)
     private String description;
 
-    private Set<Long> authorIds;
-    private Set<Long> genreIds;
+    @NotEmpty(message = "At least one author must be provided")
+    private Set<
+            @NotNull(message = "Author id is required")
+            @Positive(message = "Author id must be a positive number")
+                    Long> authorIds;
+
+    @NotEmpty(message = "At least one genre must be provided")
+    private Set<
+            @NotNull(message = "Genre id is required")
+            @Positive(message = "Genre id must be a positive number")
+                    Long> genreIds;
+
+    @Positive(message = "Series id must be a positive number")
     private Long seriesId;
 }
