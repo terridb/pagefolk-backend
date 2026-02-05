@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -17,8 +18,10 @@ import java.util.Set;
 @Table(name = "book_series")
 public class BookSeriesEntity extends BaseEntity {
     @Column(nullable = false)
-    private String name;
+    private String title;
+
+    private String description;
 
     @OneToMany(mappedBy = "series")
-    private Set<BookEntity> books;
+    private Set<BookEntity> books = new HashSet<>();
 }

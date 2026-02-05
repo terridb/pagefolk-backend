@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -23,5 +24,5 @@ public class GenreEntity extends BaseEntity {
     private String description;
 
     @ManyToMany(mappedBy = "genres")
-    private Set<BookEntity> books;
+    private Set<BookEntity> books = new HashSet<>();
 }

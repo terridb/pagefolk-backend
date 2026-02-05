@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -29,5 +30,5 @@ public class ListEntity extends BaseEntity {
             joinColumns = @JoinColumn(name = "list_id"),
             inverseJoinColumns = @JoinColumn(name = "book_id")
     )
-    private Set<BookEntity> books;
+    private Set<BookEntity> books = new HashSet<>();
 }

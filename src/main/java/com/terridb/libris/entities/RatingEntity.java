@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -12,7 +14,7 @@ import lombok.Setter;
 @Table(name = "ratings")
 public class RatingEntity extends BaseEntity {
     @Column(nullable = false)
-    private int score;
+    private BigDecimal score;
 
     private String review;
 
