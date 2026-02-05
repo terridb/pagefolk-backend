@@ -1,10 +1,7 @@
 package com.terridb.libris.mappers;
 
-import com.terridb.libris.dtos.author.AuthorRequestDto;
-import com.terridb.libris.dtos.author.AuthorResponseDto;
 import com.terridb.libris.dtos.genre.GenreRequestDto;
 import com.terridb.libris.dtos.genre.GenreResponseDto;
-import com.terridb.libris.entities.AuthorEntity;
 import com.terridb.libris.entities.GenreEntity;
 import org.springframework.stereotype.Component;
 
