@@ -3,12 +3,14 @@ package com.terridb.libris.dtos.book;
 import com.terridb.libris.dtos.author.AuthorResponseDto;
 import com.terridb.libris.dtos.bookseries.BookSeriesSimpleResponseDto;
 import com.terridb.libris.dtos.genre.GenreResponseDto;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+@Getter
 @Setter
 public class BookResponseDto {
     private Long id;

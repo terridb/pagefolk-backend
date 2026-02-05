@@ -1,7 +1,9 @@
 package com.terridb.libris.dtos.profile;
 
+import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 @Setter
 public class ProfileResponseDto {
     private Long id;

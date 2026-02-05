@@ -10,20 +10,24 @@ VALUES (1, 'Sarah J. Maas', NOW(), NOW()),
        (3, 'Ali Hazelwood', NOW(), NOW()),
        (4, 'Rebecca Yarros', NOW(), NOW());
 
-INSERT INTO book_series (id, name, created_date, edited_date)
-VALUES (1, 'A Court of Thorns and Roses', NOW(), NOW()),
-       (2, 'The Hunger Games', NOW(), NOW()),
-       (3, 'Empyrean', NOW(), NOW());
+INSERT INTO book_series (id, title, description, created_date, edited_date)
+VALUES (1, 'A Court of Thorns and Roses', 'Fae romance saga', NOW(), NOW()),
+       (2, 'The Hunger Games', 'Dystopian survival trilogy', NOW(), NOW()),
+       (3, 'Empyrean', 'Dragon rider war college', NOW(), NOW());
 
-INSERT INTO books (id, title, isbn, release_date, description, image_url, series_id, created_date, edited_date)
-VALUES (1, 'A Court of Thorns and Roses', '9781619634442', '2015-05-05', 'Fae fantasy romance', NULL, 1, NOW(), NOW()),
-       (2, 'A Court of Mist and Fury', '9781619634466', '2016-05-03', 'Sequel in the ACOTAR series', NULL, 1, NOW(),
+INSERT INTO books (id, title, isbn, release_date, description, image_url, average_rating, rating_count, series_id,
+                   created_date, edited_date)
+VALUES (1, 'A Court of Thorns and Roses', '9781619634442', '2015-05-05', 'Fae fantasy romance', NULL, 4.6, 1200, 1,
+        NOW(), NOW()),
+       (2, 'A Court of Mist and Fury', '9781619634466', '2016-05-03', 'Sequel in the ACOTAR series', NULL, 4.7, 980, 1,
+        NOW(), NOW()),
+       (3, 'The Hunger Games', '9780439023528', '2008-09-14', 'Teens fight to survive in dystopia', NULL, 4.5, 2100, 2,
+        NOW(), NOW()),
+       (4, 'Catching Fire', '9780439023498', '2009-09-01', 'Second Hunger Games book', NULL, 4.4, 1850, 2, NOW(),
         NOW()),
-       (3, 'The Hunger Games', '9780439023528', '2008-09-14', 'Teens fight to survive in dystopia', NULL, 2, NOW(),
-        NOW()),
-       (4, 'Catching Fire', '9780439023498', '2009-09-01', 'Second Hunger Games book', NULL, 2, NOW(), NOW()),
-       (5, 'The Love Hypothesis', '9780593336823', '2021-09-14', 'STEM fake dating romance', NULL, NULL, NOW(), NOW()),
-       (6, 'Fourth Wing', '9781649374042', '2023-04-05', 'Dragon riding war college', NULL, 3, NOW(), NOW());
+       (5, 'The Love Hypothesis', '9780593336823', '2021-09-14', 'STEM fake dating romance', NULL, 4.2, 760, NULL,
+        NOW(), NOW()),
+       (6, 'Fourth Wing', '9781649374042', '2023-04-05', 'Dragon riding war college', NULL, 4.6, 1500, 3, NOW(), NOW());
 
 INSERT INTO book_authors (book_id, author_id)
 VALUES (1, 1),
@@ -67,10 +71,12 @@ VALUES (1, 'Fantasy Faves', 'My top fantasy books', 1, NOW(), NOW()),
        (2, 'Want To Read', 'Books I plan to read soon', 1, NOW(), NOW());
 
 -- ======================
--- LIST ↔ BOOKS
+-- LIST <-> BOOKS
 -- ======================
 INSERT INTO list_books (list_id, book_id)
 VALUES (1, 1),   -- ACOTAR
        (1, 6),   -- Fourth Wing
        (2, 2),   -- ACOMAF
        (2, 5);   -- The Love Hypothesis
+
+
