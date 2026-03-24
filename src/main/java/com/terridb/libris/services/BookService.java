@@ -12,6 +12,7 @@ import com.terridb.libris.repositories.BookRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,11 +31,11 @@ public class BookService {
         this.bookMapper = bookMapper;
     }
 
-    public PaginatedBookResponse getAllBooks(String search, int page, int size) {
+    public PaginatedBookResponse getAllBooks(String search, int page, int size, String sortBy, String direction) {
         if (page < 0) page = 0;
         if (size <= 0 || size > 100) size = 20;
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
 
         Page<BookEntity> booksPage = bookRepository.searchBooks(search, pageable);
 

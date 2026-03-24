@@ -28,9 +28,11 @@ public class BookController {
     public ResponseEntity<PaginatedBookResponse> getAllBooks(
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "title") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
     ) {
-        return ResponseEntity.ok(bookService.getAllBooks(search, page, size));
+        return ResponseEntity.ok(bookService.getAllBooks(search, page, size, sortBy, direction));
     }
 
     @GetMapping("/{id}")
