@@ -3,14 +3,21 @@ package com.terridb.libris.services;
 import com.terridb.libris.dtos.book.BookPatchDto;
 import com.terridb.libris.dtos.book.BookRequestDto;
 import com.terridb.libris.dtos.book.BookResponseDto;
+import com.terridb.libris.dtos.book.PaginatedBookResponse;
 import com.terridb.libris.entities.BookEntity;
 import com.terridb.libris.exceptions.ConflictException;
 import com.terridb.libris.exceptions.RecordNotFoundException;
 import com.terridb.libris.mappers.BookMapper;
 import com.terridb.libris.repositories.BookRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class BookService {
@@ -23,11 +30,17 @@ public class BookService {
         this.bookMapper = bookMapper;
     }
 
-    public List<BookResponseDto> getAllBooks() {
-        List<BookEntity> entities = bookRepository.findAll();
+    public PaginatedBookResponse getAllBooks(String search, int page, int size) {
+        if (page < 0) page = 0;
+        if (size <= 0 || size > 100) size = 20;
 
-        return bookMapper.toDto(entities);
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<BookEntity> booksPage = bookRepository.searchBooks(search, pageable);
+
+        return bookMapper.toPaginatedDto(booksPage);
     }
+
 
     public BookResponseDto getBookById(Long id) {
         return bookMapper.toDto(
@@ -43,7 +56,7 @@ public class BookService {
         return bookMapper.toDto(savedEntity);
     }
 
-//    Update book-metadata
+    //    Update book-metadata
     public BookResponseDto updateBook(Long bookId, BookPatchDto input) {
         BookEntity existingEntity = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RecordNotFoundException("Book with id " + bookId + " not found"));

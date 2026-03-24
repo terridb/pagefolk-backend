@@ -2,7 +2,10 @@ package com.terridb.libris.mappers;
 
 import com.terridb.libris.dtos.book.BookRequestDto;
 import com.terridb.libris.dtos.book.BookResponseDto;
+import com.terridb.libris.dtos.book.PaginatedBookResponse;
 import com.terridb.libris.entities.BookEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -61,5 +64,15 @@ public class BookMapper {
             result.add(toDto(entity));
         }
         return result;
+    }
+
+    public PaginatedBookResponse toPaginatedDto(Page<BookEntity> entitiesPage) {
+        PaginatedBookResponse response = new PaginatedBookResponse();
+        response.setContent(toDto(entitiesPage.getContent()));
+        response.setPage(entitiesPage.getNumber());
+        response.setSize(entitiesPage.getSize());
+        response.setTotalElements(entitiesPage.getTotalElements());
+        response.setTotalPages(entitiesPage.getTotalPages());
+        return response;
     }
 }

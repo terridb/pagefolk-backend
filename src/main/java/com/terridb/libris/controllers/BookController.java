@@ -3,9 +3,11 @@ package com.terridb.libris.controllers;
 import com.terridb.libris.dtos.book.BookPatchDto;
 import com.terridb.libris.dtos.book.BookRequestDto;
 import com.terridb.libris.dtos.book.BookResponseDto;
+import com.terridb.libris.dtos.book.PaginatedBookResponse;
 import com.terridb.libris.services.BookService;
 import com.terridb.libris.utils.UrlUtil;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +25,13 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BookResponseDto>> getAllBooks() {
-        return ResponseEntity.ok(bookService.getAllBooks());
+    public ResponseEntity<PaginatedBookResponse> getAllBooks(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return ResponseEntity.ok(bookService.getAllBooks(search, page, size));
     }
-//    todo zoekfunctie op titel, isbn, auteur en serie
 
     @GetMapping("/{id}")
     public ResponseEntity<BookResponseDto> getBookById(@PathVariable Long id) {
