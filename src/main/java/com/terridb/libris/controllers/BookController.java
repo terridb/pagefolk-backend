@@ -1,9 +1,6 @@
 package com.terridb.libris.controllers;
 
-import com.terridb.libris.dtos.book.BookPatchDto;
-import com.terridb.libris.dtos.book.BookRequestDto;
-import com.terridb.libris.dtos.book.BookResponseDto;
-import com.terridb.libris.dtos.book.PaginatedBookResponse;
+import com.terridb.libris.dtos.book.*;
 import com.terridb.libris.services.BookService;
 import com.terridb.libris.utils.UrlUtil;
 import jakarta.validation.Valid;
@@ -12,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -25,14 +23,21 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginatedBookResponse> getAllBooks(
-            @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "title") String sortBy,
-            @RequestParam(defaultValue = "asc") String direction
-    ) {
-        return ResponseEntity.ok(bookService.getAllBooks(search, page, size, sortBy, direction));
+    public ResponseEntity<PaginatedBookResponse> getAllBooks(BookFilterDto filter) {
+        PaginatedBookResponse result = bookService.getAllBooks(
+                filter.getSearch(),
+                filter.getPage(),
+                filter.getSize(),
+                filter.getSortBy(),
+                filter.getDirection(),
+                filter.getGenres(),
+                filter.getAuthorIds(),
+                filter.getSeriesId(),
+                filter.getMinRating(),
+                filter.getReleaseAfter(),
+                filter.getReleaseBefore()
+        );
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")

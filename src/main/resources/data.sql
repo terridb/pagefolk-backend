@@ -1,8 +1,8 @@
 INSERT INTO genres (id, name, description, created_date, edited_date)
-VALUES (1, 'Fantasy', 'Magic, worlds, mythical creatures', NOW(), NOW()),
-       (2, 'Romance', 'Love stories and relationships', NOW(), NOW()),
-       (3, 'Dystopian', 'Broken societies and survival', NOW(), NOW()),
-       (4, 'Science Fiction', 'Futuristic science themes', NOW(), NOW());
+VALUES (1, 'fantasy', 'Magic, worlds, mythical creatures', NOW(), NOW()),
+       (2, 'romance', 'Love stories and relationships', NOW(), NOW()),
+       (3, 'dystopian', 'Broken societies and survival', NOW(), NOW()),
+       (4, 'science fiction', 'Futuristic science themes', NOW(), NOW());
 
 INSERT INTO authors (id, full_name, created_date, edited_date)
 VALUES (1, 'Sarah J. Maas', NOW(), NOW()),

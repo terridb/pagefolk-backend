@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,13 +32,40 @@ public class BookService {
         this.bookMapper = bookMapper;
     }
 
-    public PaginatedBookResponse getAllBooks(String search, int page, int size, String sortBy, String direction) {
+    public PaginatedBookResponse getAllBooks(
+            String search,
+            int page,
+            int size,
+            String sortBy,
+            String direction,
+            List<String> genres,
+            List<Long> authorIds,
+            Long seriesId,
+            Double minRating,
+            LocalDate releaseAfter,
+            LocalDate releaseBefore
+    ) {
+
+//        Pagination & sort
         if (page < 0) page = 0;
         if (size <= 0 || size > 100) size = 20;
+        if (genres != null) genres = genres.stream()
+                .map(String::toLowerCase)
+                .toList();
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<BookEntity> booksPage = bookRepository.searchBooks(search, pageable);
+        Page<BookEntity> booksPage = bookRepository.searchBooksWithFilters(
+                search,
+                authorIds,
+                genres,
+                seriesId,
+                releaseAfter,
+                releaseBefore,
+                minRating,
+                pageable
+        );
 
         return bookMapper.toPaginatedDto(booksPage);
     }
