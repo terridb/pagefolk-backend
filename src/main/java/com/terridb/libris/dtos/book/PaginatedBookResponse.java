@@ -13,4 +13,6 @@ public class PaginatedBookResponse {
     private int size;
     private long totalElements;
     private int totalPages;
+    private boolean hasNextPage;
+    private boolean hasPreviousPage;
 }

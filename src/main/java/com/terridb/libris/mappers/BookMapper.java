@@ -73,6 +73,8 @@ public class BookMapper {
         response.setSize(entitiesPage.getSize());
         response.setTotalElements(entitiesPage.getTotalElements());
         response.setTotalPages(entitiesPage.getTotalPages());
+        response.setHasNextPage(response.getPage() + 1 < response.getTotalPages());
+        response.setHasPreviousPage(response.getPage() > 0);
         return response;
     }
 }
