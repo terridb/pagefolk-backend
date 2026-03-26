@@ -18,8 +18,8 @@ public interface BookRepository extends JpaRepository<BookEntity, Long> {
         LEFT JOIN b.authors a
         LEFT JOIN b.genres g
         LEFT JOIN b.series s
-        WHERE 
-            (:search IS NULL OR 
+        WHERE
+            (:search IS NULL OR
              LOWER(b.title) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) OR
              LOWER(b.isbn) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) OR
              LOWER(a.fullName) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) OR
@@ -30,6 +30,7 @@ public interface BookRepository extends JpaRepository<BookEntity, Long> {
             AND (CAST(:releaseAfter AS localdate) IS NULL OR b.releaseDate >= :releaseAfter)
             AND (CAST(:releaseBefore AS localdate) IS NULL OR b.releaseDate <= :releaseBefore)
             AND (CAST(:minRating AS double) IS NULL OR b.averageRating >= :minRating)
+            AND b.deletedAt IS NULL
     """)
     Page<BookEntity> searchBooksWithFilters(
             @Param("search") String search,

@@ -85,7 +85,6 @@ public class BookService {
         return bookMapper.toPaginatedDto(booksPage);
     }
 
-
     public BookResponseDto getBookById(Long id) {
         return bookMapper.toDto(
                 bookRepository.findById(id)

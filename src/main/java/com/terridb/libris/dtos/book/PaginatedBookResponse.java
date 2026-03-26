@@ -16,3 +16,4 @@ public class PaginatedBookResponse {
     private boolean hasNextPage;
     private boolean hasPreviousPage;
 }
+//todo herschrijven naar herbruikbaar

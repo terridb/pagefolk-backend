@@ -4,11 +4,11 @@ VALUES ('fantasy', 'Magic, worlds, mythical creatures', NOW(), NOW()),
        ('dystopian', 'Broken societies and survival', NOW(), NOW()),
        ('science fiction', 'Futuristic science themes', NOW(), NOW());
 
-INSERT INTO authors (full_name, created_date, edited_date)
-VALUES ('Sarah J. Maas', NOW(), NOW()),
-       ('Suzanne Collins', NOW(), NOW()),
-       ('Ali Hazelwood', NOW(), NOW()),
-       ('Rebecca Yarros', NOW(), NOW());
+INSERT INTO authors (full_name, deleted_at, created_date, edited_date)
+VALUES ('Sarah J. Maas', NULL, NOW(), NOW()),
+       ('Suzanne Collins', NULL, NOW(), NOW()),
+       ('Ali Hazelwood', NULL, NOW(), NOW()),
+       ('Rebecca Yarros', NULL, NOW(), NOW());
 
 INSERT INTO book_series (title, description, created_date, edited_date)
 VALUES ('A Court of Thorns and Roses', 'Fae romance saga', NOW(), NOW()),
