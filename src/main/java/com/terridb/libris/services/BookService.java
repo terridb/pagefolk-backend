@@ -32,6 +32,7 @@ public class BookService {
         this.bookMapper = bookMapper;
     }
 
+    //    Get all books + sorting, pagination, filters, search
     public PaginatedBookResponse getAllBooks(
             String search,
             int page,
@@ -46,14 +47,19 @@ public class BookService {
             LocalDate releaseBefore
     ) {
 
-//        Pagination & sort
+//        Pagination
         if (page < 0) page = 0;
         if (size <= 0 || size > 100) size = 20;
+
+//        Genres
         if (genres != null) genres = genres.stream()
                 .map(String::toLowerCase)
                 .toList();
 
-        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
+//        Sort
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        Sort sort = Sort.by(sortDirection, sortBy);
+
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<BookEntity> booksPage = bookRepository.searchBooksWithFilters(
