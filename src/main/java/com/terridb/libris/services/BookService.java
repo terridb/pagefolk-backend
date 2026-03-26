@@ -4,11 +4,17 @@ import com.terridb.libris.dtos.book.BookPatchDto;
 import com.terridb.libris.dtos.book.BookRequestDto;
 import com.terridb.libris.dtos.book.BookResponseDto;
 import com.terridb.libris.dtos.book.PaginatedBookResponse;
+import com.terridb.libris.entities.AuthorEntity;
 import com.terridb.libris.entities.BookEntity;
+import com.terridb.libris.entities.BookSeriesEntity;
+import com.terridb.libris.entities.GenreEntity;
 import com.terridb.libris.exceptions.ConflictException;
 import com.terridb.libris.exceptions.RecordNotFoundException;
 import com.terridb.libris.mappers.BookMapper;
+import com.terridb.libris.repositories.AuthorRepository;
 import com.terridb.libris.repositories.BookRepository;
+import com.terridb.libris.repositories.BookSeriesRepository;
+import com.terridb.libris.repositories.GenreRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,10 +32,16 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
+    private final AuthorRepository authorRepository;
+    private final GenreRepository genreRepository;
+    private final BookSeriesRepository bookSeriesRepository;
 
-    public BookService(BookRepository bookRepository, BookMapper bookMapper) {
+    public BookService(BookRepository bookRepository, BookMapper bookMapper, AuthorRepository authorRepository, GenreRepository genreRepository, BookSeriesRepository bookSeriesRepository) {
         this.bookRepository = bookRepository;
         this.bookMapper = bookMapper;
+        this.authorRepository = authorRepository;
+        this.genreRepository = genreRepository;
+        this.bookSeriesRepository = bookSeriesRepository;
     }
 
     //    Get all books + sorting, pagination, filters, search
@@ -86,8 +98,33 @@ public class BookService {
     public BookResponseDto postBook(BookRequestDto input) {
         checkIsbnAvailability(input.getIsbn());
         BookEntity entity = bookMapper.toEntity(input, null);
-        BookEntity savedEntity = bookRepository.save(entity);
 
+//        Set authors
+        Set<AuthorEntity> authors = entity.getAuthors();
+        for (Long authorId : input.getAuthorIds()) {
+            AuthorEntity existingEntity = authorRepository.findById(authorId)
+                    .orElseThrow(() -> new RecordNotFoundException("Author with id " + authorId + " not found"));
+            authors.add(existingEntity);
+        }
+        entity.setAuthors(authors);
+
+//        Set genres
+        Set<GenreEntity> genres = entity.getGenres();
+        for (Long genreId : input.getGenreIds()) {
+            GenreEntity existingEntity = genreRepository.findById(genreId)
+                    .orElseThrow(() -> new RecordNotFoundException("Genre with id " + genreId + " not found"));
+            genres.add(existingEntity);
+        }
+        entity.setGenres(genres);
+
+//        Set series
+        if (input.getSeriesId() != null) {
+            BookSeriesEntity existingEntity = bookSeriesRepository.findById(input.getSeriesId())
+                    .orElseThrow(() -> new RecordNotFoundException("Series with id " + input.getSeriesId() + " not found"));
+            entity.setSeries(existingEntity);
+        }
+
+        BookEntity savedEntity = bookRepository.save(entity);
         return bookMapper.toDto(savedEntity);
     }
 
