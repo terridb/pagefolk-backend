@@ -4,10 +4,7 @@ import com.terridb.libris.dtos.book.BookPatchDto;
 import com.terridb.libris.dtos.book.BookRequestDto;
 import com.terridb.libris.dtos.book.BookResponseDto;
 import com.terridb.libris.dtos.book.PaginatedBookResponse;
-import com.terridb.libris.entities.AuthorEntity;
-import com.terridb.libris.entities.BookEntity;
-import com.terridb.libris.entities.BookSeriesEntity;
-import com.terridb.libris.entities.GenreEntity;
+import com.terridb.libris.entities.*;
 import com.terridb.libris.exceptions.ConflictException;
 import com.terridb.libris.exceptions.RecordNotFoundException;
 import com.terridb.libris.mappers.BookMapper;
@@ -150,6 +147,31 @@ public class BookService {
             existingEntity.setReleaseDate(input.getReleaseDate());
         }
 
+        BookEntity savedEntity = bookRepository.save(existingEntity);
+        return bookMapper.toDto(savedEntity);
+    }
+
+    public void softDeleteBook(Long bookId) {
+        BookEntity existingEntity = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RecordNotFoundException("Book with id " + bookId + " not found"));
+
+        if (existingEntity.getDeletedAt() != null) {
+            throw new ConflictException("Book with id " + bookId + " is already soft-deleted");
+        }
+
+        existingEntity.setDeletedAt(LocalDate.now());
+        bookRepository.save(existingEntity);
+    }
+
+    public BookResponseDto reviveBook(Long bookId) {
+        BookEntity existingEntity = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RecordNotFoundException("Book with id " + bookId + " not found"));
+
+        if (existingEntity.getDeletedAt() == null) {
+            throw new ConflictException("Book with id " + bookId + " still exists and cannot be revived");
+        }
+
+        existingEntity.setDeletedAt(null);
         BookEntity savedEntity = bookRepository.save(existingEntity);
         return bookMapper.toDto(savedEntity);
     }

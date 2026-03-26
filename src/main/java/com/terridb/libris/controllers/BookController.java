@@ -58,4 +58,15 @@ public class BookController {
     public ResponseEntity<BookResponseDto> updateBook(@Valid @RequestBody BookPatchDto input, @PathVariable Long id) {
         return ResponseEntity.ok(bookService.updateBook(id, input));
     }
+
+    @PatchMapping("/{id}/delete")
+    public ResponseEntity<BookResponseDto> softDeleteBook(@PathVariable Long id) {
+        bookService.softDeleteBook(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/revive")
+    public ResponseEntity<BookResponseDto> reviveBook(@PathVariable Long id) {
+        return ResponseEntity.ok(bookService.reviveBook(id));
+    }
 }

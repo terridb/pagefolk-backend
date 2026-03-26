@@ -15,20 +15,19 @@ VALUES ('A Court of Thorns and Roses', 'Fae romance saga', NOW(), NOW()),
        ('The Hunger Games', 'Dystopian survival trilogy', NOW(), NOW()),
        ('Empyrean', 'Dragon rider war college', NOW(), NOW());
 
-INSERT INTO books (title, isbn, release_date, description, image_url, average_rating, rating_count, series_id,
-                   created_date, edited_date)
+INSERT INTO books (title, isbn, release_date, description, image_url, average_rating, rating_count, series_id, deleted_at, created_date, edited_date)
 VALUES ('A Court of Thorns and Roses', '9781619634442', '2015-05-05', 'Fae fantasy romance', NULL, 4.6, 1200,
-        (SELECT id FROM book_series WHERE title = 'A Court of Thorns and Roses'), NOW(), NOW()),
+        (SELECT id FROM book_series WHERE title = 'A Court of Thorns and Roses'), NULL, NOW(), NOW()),
        ('A Court of Mist and Fury', '9781619634466', '2016-05-03', 'Sequel in the ACOTAR series', NULL, 4.7, 980,
-        (SELECT id FROM book_series WHERE title = 'A Court of Thorns and Roses'), NOW(), NOW()),
+        (SELECT id FROM book_series WHERE title = 'A Court of Thorns and Roses'), NULL, NOW(), NOW()),
        ('The Hunger Games', '9780439023528', '2008-09-14', 'Teens fight to survive in dystopia', NULL, 4.5, 2100,
-        (SELECT id FROM book_series WHERE title = 'The Hunger Games'), NOW(), NOW()),
+        (SELECT id FROM book_series WHERE title = 'The Hunger Games'), NULL, NOW(), NOW()),
        ('Catching Fire', '9780439023498', '2009-09-01', 'Second Hunger Games book', NULL, 4.4, 1850,
-        (SELECT id FROM book_series WHERE title = 'The Hunger Games'), NOW(), NOW()),
+        (SELECT id FROM book_series WHERE title = 'The Hunger Games'), NULL, NOW(), NOW()),
        ('The Love Hypothesis', '9780593336823', '2021-09-14', 'STEM fake dating romance', NULL, 4.2, 760,
-        NULL, NOW(), NOW()),
+        NULL, NULL, NOW(), NOW()),
        ('Fourth Wing', '9781649374042', '2023-04-05', 'Dragon riding war college', NULL, 4.6, 1500,
-        (SELECT id FROM book_series WHERE title = 'Empyrean'), NOW(), NOW());
+        (SELECT id FROM book_series WHERE title = 'Empyrean'), NULL, NOW(), NOW());
 
 INSERT INTO book_authors (book_id, author_id)
 VALUES ((SELECT id FROM books WHERE isbn = '9781619634442'),

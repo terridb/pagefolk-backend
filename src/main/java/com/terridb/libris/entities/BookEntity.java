@@ -25,10 +25,10 @@ public class BookEntity extends BaseEntity {
 
     private LocalDate releaseDate;
     private String description;
-
     private String imageUrl;
     private BigDecimal averageRating;
     private int ratingCount;
+    private LocalDate deletedAt;
 
     @ManyToMany
     @JoinTable(
