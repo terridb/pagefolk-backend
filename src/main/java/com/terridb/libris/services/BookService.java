@@ -173,8 +173,24 @@ public class BookService {
         return bookMapper.toDto(savedEntity);
     }
 
+    public void deleteBook(Long id) {
+        BookEntity existingEntity = bookRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Book with id " + id + " not found"));
+
+        if (existingEntity.getDeletedAt() == null) {
+            throw new ConflictException("Book with id " + id + " should first be soft-deleted before full delete");
+        }
+
+        existingEntity.getGenres().forEach(genre -> genre.getBooks().remove(existingEntity));
+        existingEntity.getAuthors().forEach(author -> author.getBooks().remove(existingEntity));
+        existingEntity.getSeries().getBooks().remove(existingEntity);
+        existingEntity.getLists().forEach(list -> list.getBooks().remove(existingEntity));
+        existingEntity.getProfilesWithFavorite().forEach(profile -> profile.getFavoriteBooks().remove(existingEntity));
+
+        bookRepository.delete(existingEntity);
+    }
+
 //    todo add endpoint to see all soft-deleted books
-//    todo add hard delete
 
     private void checkIsbnAvailability(String isbn) {
         if (bookRepository.existsByIsbn(isbn)) {

@@ -92,4 +92,18 @@ public class AuthorService {
         AuthorEntity savedEntity = authorRepository.save(existingEntity);
         return authorMapper.toDto(savedEntity);
     }
+
+    public void deleteAuthor(Long id) {
+        AuthorEntity existingEntity = authorRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Author with id " + id + " not found"));
+
+        if (existingEntity.getDeletedAt() == null) {
+            throw new ConflictException("Author with id " + id + " should first be soft-deleted before full delete");
+        }
+
+        existingEntity.getBooks().forEach(book -> book.getAuthors().remove(existingEntity));
+        existingEntity.getProfilesWithFavorite().forEach(profile -> profile.getFavoriteAuthors().remove(existingEntity));
+
+        authorRepository.delete(existingEntity);
+    }
 }

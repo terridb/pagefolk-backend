@@ -64,4 +64,10 @@ public class BookController {
     public ResponseEntity<BookResponseDto> reviveBook(@PathVariable Long id) {
         return ResponseEntity.ok(bookService.reviveBook(id));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        return ResponseEntity.noContent().build();
+    }
 }
