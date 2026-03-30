@@ -1,14 +1,14 @@
 package com.terridb.libris.controllers;
 
 import com.terridb.libris.dtos.author.AuthorFilterDto;
+import com.terridb.libris.dtos.author.AuthorRequestDto;
 import com.terridb.libris.dtos.author.AuthorResponseDto;
 import com.terridb.libris.dtos.author.PaginatedAuthorResponse;
 import com.terridb.libris.services.AuthorService;
+import com.terridb.libris.utils.UrlUtil;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/authors")
@@ -35,5 +35,30 @@ public class AuthorController {
     @GetMapping("/{id}")
     public ResponseEntity<AuthorResponseDto> getAuthorById(@PathVariable Long id) {
         return ResponseEntity.ok(authorService.getAuthorById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<AuthorResponseDto> postAuthor(@Valid @RequestBody AuthorRequestDto input) {
+        AuthorResponseDto dto = authorService.postAuthor(input);
+
+        return ResponseEntity
+                .created(UrlUtil.generateUri("authors", dto.getId()))
+                .body(dto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AuthorResponseDto> updateAuthor(@Valid @RequestBody AuthorRequestDto input, @PathVariable Long id) {
+        return ResponseEntity.ok(authorService.updateAuthor(id, input));
+    }
+
+    @PatchMapping("/{id}/delete")
+    public ResponseEntity<AuthorResponseDto> softDeleteAuthor(@PathVariable Long id) {
+        authorService.softDeleteAuthor(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/revive")
+    public ResponseEntity<AuthorResponseDto> reviveAuthor(@PathVariable Long id) {
+        return ResponseEntity.ok(authorService.reviveAuthor(id));
     }
 }

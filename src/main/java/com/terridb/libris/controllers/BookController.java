@@ -4,13 +4,8 @@ import com.terridb.libris.dtos.book.*;
 import com.terridb.libris.services.BookService;
 import com.terridb.libris.utils.UrlUtil;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/books")

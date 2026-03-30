@@ -19,8 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -150,30 +148,33 @@ public class BookService {
         return bookMapper.toDto(savedEntity);
     }
 
-    public void softDeleteBook(Long bookId) {
-        BookEntity existingEntity = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RecordNotFoundException("Book with id " + bookId + " not found"));
+    public void softDeleteBook(Long id) {
+        BookEntity existingEntity = bookRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Book with id " + id + " not found"));
 
         if (existingEntity.getDeletedAt() != null) {
-            throw new ConflictException("Book with id " + bookId + " is already soft-deleted");
+            throw new ConflictException("Book with id " + id + " is already soft-deleted");
         }
 
         existingEntity.setDeletedAt(LocalDate.now());
         bookRepository.save(existingEntity);
     }
 
-    public BookResponseDto reviveBook(Long bookId) {
-        BookEntity existingEntity = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RecordNotFoundException("Book with id " + bookId + " not found"));
+    public BookResponseDto reviveBook(Long id) {
+        BookEntity existingEntity = bookRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Book with id " + id + " not found"));
 
         if (existingEntity.getDeletedAt() == null) {
-            throw new ConflictException("Book with id " + bookId + " still exists and cannot be revived");
+            throw new ConflictException("Book with id " + id + " still exists and cannot be revived");
         }
 
         existingEntity.setDeletedAt(null);
         BookEntity savedEntity = bookRepository.save(existingEntity);
         return bookMapper.toDto(savedEntity);
     }
+
+//    todo add endpoint to see all soft-deleted books
+//    todo add hard delete
 
     private void checkIsbnAvailability(String isbn) {
         if (bookRepository.existsByIsbn(isbn)) {
