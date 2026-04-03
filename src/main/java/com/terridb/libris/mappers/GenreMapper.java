@@ -16,8 +16,10 @@ public class GenreMapper {
             genre = new GenreEntity();
         }
 
-        genre.setName(requestDto.getName());
-        genre.setDescription(requestDto.getDescription());
+        genre.setName(requestDto.getName().trim().toLowerCase());
+        if (requestDto.getDescription() != null && !requestDto.getDescription().trim().isEmpty()) {
+            genre.setDescription(requestDto.getDescription().trim());
+        }
 
         return genre;
     }
