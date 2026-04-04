@@ -130,7 +130,7 @@ public class BookService {
         BookEntity existingEntity = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RecordNotFoundException("Book with id " + bookId + " not found"));
 
-        if (input.getTitle() != null) {
+        if (input.getTitle() != null ) {
             existingEntity.setTitle(input.getTitle());
         }
 

@@ -40,4 +40,29 @@ public class GenreService {
         GenreEntity entity = genreMapper.toEntity(input, null);
         return genreMapper.toDto(genreRepository.save(entity));
     }
+
+    public GenreResponseDto updateGenre(Long genreId, GenreRequestDto input) {
+        GenreEntity existingEntity = genreRepository.findById(genreId)
+                .orElseThrow(() -> new RecordNotFoundException("Genre with id " + genreId + " not found"));
+
+        if (input.getName() != null && !input.getName().trim().isEmpty()) {
+            existingEntity.setName(input.getName().trim().toLowerCase());
+        }
+
+        if (input.getDescription() != null && !input.getDescription().trim().isEmpty()) {
+            existingEntity.setDescription(input.getDescription().trim());
+        }
+
+        GenreEntity savedEntity = genreRepository.save(existingEntity);
+        return genreMapper.toDto(savedEntity);
+    }
+
+    public void deleteGenre(Long genreId) {
+        GenreEntity existingEntity = genreRepository.findById(genreId)
+                .orElseThrow(() -> new RecordNotFoundException("Genre with id " + genreId + " not found"));
+
+        existingEntity.getBooks().forEach(book -> book.getGenres().remove(existingEntity));
+
+        genreRepository.deleteById(genreId);
+    }
 }

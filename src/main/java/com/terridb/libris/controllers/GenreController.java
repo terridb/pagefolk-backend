@@ -1,7 +1,5 @@
 package com.terridb.libris.controllers;
 
-import com.terridb.libris.dtos.author.AuthorRequestDto;
-import com.terridb.libris.dtos.author.AuthorResponseDto;
 import com.terridb.libris.dtos.genre.GenreRequestDto;
 import com.terridb.libris.dtos.genre.GenreResponseDto;
 import com.terridb.libris.services.GenreService;
@@ -39,5 +37,16 @@ public class GenreController {
         return ResponseEntity
                 .created(UrlUtil.generateUri("genres", dto.getId()))
                 .body(dto);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<GenreResponseDto> updateGenre(@Valid @RequestBody GenreRequestDto input, @PathVariable Long id) {
+        return ResponseEntity.ok(genreService.updateGenre(id, input));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
+        genreService.deleteGenre(id);
+        return ResponseEntity.noContent().build();
     }
 }
