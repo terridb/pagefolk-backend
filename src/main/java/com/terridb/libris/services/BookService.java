@@ -3,7 +3,7 @@ package com.terridb.libris.services;
 import com.terridb.libris.dtos.book.BookPatchDto;
 import com.terridb.libris.dtos.book.BookRequestDto;
 import com.terridb.libris.dtos.book.BookResponseDto;
-import com.terridb.libris.dtos.book.PaginatedBookResponse;
+import com.terridb.libris.dtos.common.PaginatedResponse;
 import com.terridb.libris.entities.AuthorEntity;
 import com.terridb.libris.entities.BookEntity;
 import com.terridb.libris.entities.BookSeriesEntity;
@@ -43,7 +43,7 @@ public class BookService {
     }
 
     //    Get all books + sorting, pagination, filters, search
-    public PaginatedBookResponse getAllBooks(
+    public PaginatedResponse<BookResponseDto> getAllBooks(
             String search,
             int page,
             int size,

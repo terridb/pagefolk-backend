@@ -1,6 +1,10 @@
 package com.terridb.libris.controllers;
 
-import com.terridb.libris.dtos.book.*;
+import com.terridb.libris.dtos.book.BookPatchDto;
+import com.terridb.libris.dtos.book.BookFilterDto;
+import com.terridb.libris.dtos.book.BookRequestDto;
+import com.terridb.libris.dtos.book.BookResponseDto;
+import com.terridb.libris.dtos.common.PaginatedResponse;
 import com.terridb.libris.services.BookService;
 import com.terridb.libris.utils.UrlUtil;
 import jakarta.validation.Valid;
@@ -18,8 +22,8 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginatedBookResponse> getAllBooks(BookFilterDto filter) {
-        PaginatedBookResponse result = bookService.getAllBooks(
+    public ResponseEntity<PaginatedResponse<BookResponseDto>> getAllBooks(BookFilterDto filter) {
+        PaginatedResponse<BookResponseDto> result = bookService.getAllBooks(
                 filter.getSearch(),
                 filter.getPage(),
                 filter.getSize(),

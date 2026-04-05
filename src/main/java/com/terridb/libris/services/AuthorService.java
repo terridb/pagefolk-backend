@@ -2,7 +2,7 @@ package com.terridb.libris.services;
 
 import com.terridb.libris.dtos.author.AuthorRequestDto;
 import com.terridb.libris.dtos.author.AuthorResponseDto;
-import com.terridb.libris.dtos.author.PaginatedAuthorResponse;
+import com.terridb.libris.dtos.common.PaginatedResponse;
 import com.terridb.libris.entities.AuthorEntity;
 import com.terridb.libris.exceptions.ConflictException;
 import com.terridb.libris.exceptions.RecordNotFoundException;
@@ -26,7 +26,7 @@ public class AuthorService {
         this.authorMapper = authorMapper;
     }
 
-    public PaginatedAuthorResponse getAllAuthors(
+    public PaginatedResponse<AuthorResponseDto> getAllAuthors(
             String search,
             int page,
             int size,

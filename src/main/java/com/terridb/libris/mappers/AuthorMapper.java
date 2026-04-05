@@ -2,10 +2,8 @@ package com.terridb.libris.mappers;
 
 import com.terridb.libris.dtos.author.AuthorRequestDto;
 import com.terridb.libris.dtos.author.AuthorResponseDto;
-import com.terridb.libris.dtos.author.PaginatedAuthorResponse;
-import com.terridb.libris.dtos.book.PaginatedBookResponse;
+import com.terridb.libris.dtos.common.PaginatedResponse;
 import com.terridb.libris.entities.AuthorEntity;
-import com.terridb.libris.entities.BookEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -41,9 +39,8 @@ public class AuthorMapper {
         return result;
     }
 
-//    todo herschrijven
-    public PaginatedAuthorResponse toPaginatedDto(Page<AuthorEntity> entitiesPage) {
-        PaginatedAuthorResponse response = new PaginatedAuthorResponse();
+    public PaginatedResponse<AuthorResponseDto> toPaginatedDto(Page<AuthorEntity> entitiesPage) {
+        PaginatedResponse<AuthorResponseDto> response = new PaginatedResponse<>();
         response.setContent(toDto(entitiesPage.getContent()));
         response.setPage(entitiesPage.getNumber());
         response.setSize(entitiesPage.getSize());
