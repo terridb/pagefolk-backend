@@ -12,7 +12,7 @@ public class BookRequestDto {
     @NotBlank(message = "Title is required")
     private String title;
 
-    @Pattern(message = "ISBN must contain only digits and be 10 or 13 characters", regexp = "^(?:\\d{9}[\\dX]|\\d{13})$\n")
+    @Pattern(message = "ISBN must contain only digits and be 10 or 13 characters", regexp = "^(?:\\d{9}[\\dX]|\\d{13})$")
     @NotBlank(message = "ISBN is required")
     private String isbn;
 

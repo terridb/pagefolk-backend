@@ -25,10 +25,10 @@ public class BookEntity extends BaseEntity {
 
     private LocalDate releaseDate;
     private String description;
-
     private String imageUrl;
     private BigDecimal averageRating;
     private int ratingCount;
+    private LocalDate deletedAt;
 
     @ManyToMany
     @JoinTable(
@@ -52,4 +52,10 @@ public class BookEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "series_id")
     private BookSeriesEntity series;
+
+    @ManyToMany(mappedBy = "books")
+    private Set<ListEntity> lists = new HashSet<>();
+
+    @ManyToMany(mappedBy = "favoriteBooks")
+    private Set<ProfileEntity> profilesWithFavorite = new HashSet<>();
 }

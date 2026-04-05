@@ -2,7 +2,9 @@ package com.terridb.libris.mappers;
 
 import com.terridb.libris.dtos.author.AuthorRequestDto;
 import com.terridb.libris.dtos.author.AuthorResponseDto;
+import com.terridb.libris.dtos.common.PaginatedResponse;
 import com.terridb.libris.entities.AuthorEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -35,5 +37,17 @@ public class AuthorMapper {
             result.add(toDto(entity));
         }
         return result;
+    }
+
+    public PaginatedResponse<AuthorResponseDto> toPaginatedDto(Page<AuthorEntity> entitiesPage) {
+        PaginatedResponse<AuthorResponseDto> response = new PaginatedResponse<>();
+        response.setContent(toDto(entitiesPage.getContent()));
+        response.setPage(entitiesPage.getNumber());
+        response.setSize(entitiesPage.getSize());
+        response.setTotalElements(entitiesPage.getTotalElements());
+        response.setTotalPages(entitiesPage.getTotalPages());
+        response.setHasNextPage(response.getPage() + 1 < response.getTotalPages());
+        response.setHasPreviousPage(response.getPage() > 0);
+        return response;
     }
 }

@@ -11,6 +11,10 @@ import java.util.List;
 public class SeriesSimpleMapper {
 
     public BookSeriesSimpleResponseDto toDto(BookSeriesEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
         var result = new BookSeriesSimpleResponseDto();
         result.setId(entity.getId());
         result.setTitle(entity.getTitle());
@@ -19,6 +23,10 @@ public class SeriesSimpleMapper {
     }
 
     public List<BookSeriesSimpleResponseDto> toDto(List<BookSeriesEntity> entities) {
+        if (entities == null) {
+            return List.of();
+        }
+
         var result = new ArrayList<BookSeriesSimpleResponseDto>();
         for (BookSeriesEntity entity : entities) {
             result.add(toDto(entity));
