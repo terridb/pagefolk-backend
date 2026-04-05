@@ -100,6 +100,15 @@ public class BookSeriesService {
         return seriesMapper.toDto(savedEntity);
     }
 
+    public void deleteBookSeries(Long id) {
+        BookSeriesEntity existingEntity = bookSeriesRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Book series with id " + id + " not found"));
+
+        existingEntity.getBooks().forEach(book -> book.setSeries(null));
+
+        bookSeriesRepository.delete(existingEntity);
+    }
+
     private void assignBookToSeries(Long bookId, BookSeriesEntity series) {
         BookEntity book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RecordNotFoundException("Book with id " + bookId + " not found"));

@@ -7,6 +7,7 @@ import com.terridb.libris.services.BookSeriesService;
 import com.terridb.libris.utils.UrlUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,5 +49,11 @@ public class BookSeriesController {
     @PatchMapping("/{id}")
     public ResponseEntity<BookSeriesResponseDto> updateBookSeries(@Valid @RequestBody BookSeriesRequestDto input, @PathVariable Long id) {
         return ResponseEntity.ok(bookSeriesService.updateBookSeries(id, input));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBookSeries(@PathVariable Long id) {
+        bookSeriesService.deleteBookSeries(id);
+        return ResponseEntity.noContent().build();
     }
 }
