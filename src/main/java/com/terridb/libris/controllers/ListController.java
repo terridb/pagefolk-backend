@@ -42,6 +42,17 @@ public class ListController {
         return ResponseEntity.ok(listService.updateList(id, input));
     }
 
+    @PostMapping("/{listId}/books/{bookId}")
+    public ResponseEntity<ListResponseDto> addBookToList(@PathVariable Long listId, @PathVariable Long bookId) {
+        return ResponseEntity.ok(listService.addBookToList(listId, bookId));
+    }
+
+    @DeleteMapping("/{listId}/books/{bookId}")
+    public ResponseEntity<Void> removeBookFromList(@PathVariable Long listId, @PathVariable Long bookId) {
+        listService.removeBookFromList(listId, bookId);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteList(@PathVariable Long id) {
         listService.deleteList(id);
