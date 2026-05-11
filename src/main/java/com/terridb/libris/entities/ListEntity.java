@@ -19,6 +19,7 @@ public class ListEntity extends BaseEntity {
     private String name;
 
     private String description;
+    private boolean required = false;
 
     @ManyToOne
     @JoinColumn(name = "profile_id")
