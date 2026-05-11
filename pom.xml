@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.terridb</groupId>
-    <artifactId>libris</artifactId>
+    <artifactId>pagefolk</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>libris</name>
-    <description>libris</description>
+    <name>pagefolk</name>
+    <description>pagefolk</description>
     <url/>
     <licenses>
         <license/>
