@@ -30,7 +30,7 @@ public class RatingMapper {
         result.setScore(entity.getScore());
         result.setReview(entity.getReview());
         result.setBook(bookSimpleMapper.toDto(entity.getBook()));
-        result.setProfile(profileMapper.toDto(entity.getProfile()));
+        result.setProfile(profileMapper.toDto(entity.getUser().getProfile()));
 
         return result;
     }

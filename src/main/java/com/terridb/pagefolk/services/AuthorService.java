@@ -72,11 +72,11 @@ public class AuthorService {
         AuthorEntity existingEntity = authorRepository.findById(id)
                 .orElseThrow(() -> new RecordNotFoundException("Author with id " + id + " not found"));
 
-        if (existingEntity.getDeletedAt() != null) {
+        if (existingEntity.getDeletedDate() != null) {
             throw new ConflictException("Author with id " + id + " is already soft-deleted");
         }
 
-        existingEntity.setDeletedAt(LocalDate.now());
+        existingEntity.setDeletedDate(LocalDate.now());
         authorRepository.save(existingEntity);
     }
 
@@ -84,11 +84,11 @@ public class AuthorService {
         AuthorEntity existingEntity = authorRepository.findById(id)
                 .orElseThrow(() -> new RecordNotFoundException("Author with id " + id + " not found"));
 
-        if (existingEntity.getDeletedAt() == null) {
+        if (existingEntity.getDeletedDate() == null) {
             throw new ConflictException("Author with id " + id + " still exists and cannot be revived");
         }
 
-        existingEntity.setDeletedAt(null);
+        existingEntity.setDeletedDate(null);
         AuthorEntity savedEntity = authorRepository.save(existingEntity);
         return authorMapper.toDto(savedEntity);
     }
@@ -97,7 +97,7 @@ public class AuthorService {
         AuthorEntity existingEntity = authorRepository.findById(id)
                 .orElseThrow(() -> new RecordNotFoundException("Author with id " + id + " not found"));
 
-        if (existingEntity.getDeletedAt() == null) {
+        if (existingEntity.getDeletedDate() == null) {
             throw new ConflictException("Author with id " + id + " should first be soft-deleted before full delete");
         }
 

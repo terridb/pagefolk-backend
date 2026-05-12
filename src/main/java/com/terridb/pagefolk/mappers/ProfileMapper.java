@@ -21,8 +21,8 @@ public class ProfileMapper {
     public ProfileResponseDto toDto(ProfileEntity entity) {
         var result = new ProfileResponseDto();
         result.setId(entity.getId());
-        result.setImageUrl(entity.getImageUrl());
-        result.setDeleted(entity.isDeleted());
+        result.setProfilePictureUrl(entity.getProfilePictureUrl());
+        result.setBio(entity.getBio());
 
         return result;
     }

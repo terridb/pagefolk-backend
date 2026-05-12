@@ -4,7 +4,7 @@ VALUES ('fantasy', 'Magic, worlds, mythical creatures', NOW(), NOW()),
        ('dystopian', 'Broken societies and survival', NOW(), NOW()),
        ('science fiction', 'Futuristic science themes', NOW(), NOW());
 
-INSERT INTO authors (full_name, deleted_at, created_date, edited_date)
+INSERT INTO authors (full_name, deleted_date, created_date, edited_date)
 VALUES ('Sarah J. Maas', NULL, NOW(), NOW()),
        ('Suzanne Collins', NULL, NOW(), NOW()),
        ('Ali Hazelwood', NULL, NOW(), NOW()),
@@ -16,7 +16,7 @@ VALUES ('A Court of Thorns and Roses', 'Fae romance saga', NOW(), NOW()),
        ('Empyrean', 'Dragon rider war college', NOW(), NOW());
 
 INSERT INTO books (title, isbn, release_date, description, image_url, average_rating, rating_count, series_id,
-                   deleted_at, created_date, edited_date)
+                   deleted_date, created_date, edited_date)
 VALUES ('A Court of Thorns and Roses', '9781619634442', '2015-05-05', 'Fae fantasy romance', NULL, 4.6, 1200,
         (SELECT id FROM book_series WHERE title = 'A Court of Thorns and Roses'), NULL, NOW(), NOW()),
        ('A Court of Mist and Fury', '9781619634466', '2016-05-03', 'Sequel in the ACOTAR series', NULL, 4.7, 980,
@@ -54,8 +54,8 @@ VALUES ((SELECT id FROM books WHERE isbn = '9781619634442'), (SELECT id FROM gen
        ((SELECT id FROM books WHERE isbn = '9780593336823'), (SELECT id FROM genres WHERE name = 'romance')),
        ((SELECT id FROM books WHERE isbn = '9781649374042'), (SELECT id FROM genres WHERE name = 'fantasy'));
 
-INSERT INTO users (id, created_date, edited_date, username, email, deleted)
-VALUES ('d37a7ae8-6df2-4f59-b70a-ea3b1a28222d', NOW(), NOW(), 'territorium', 'terridb@proton.me', false);
+INSERT INTO users (id, created_date, edited_date, username, email, deleted_date)
+VALUES ('d37a7ae8-6df2-4f59-b70a-ea3b1a28222d', NOW(), NOW(), 'territorium', 'terridb@proton.me', NULL);
 
 INSERT INTO profiles (user_id, created_date, edited_date)
 VALUES ((SELECT id FROM users WHERE username = 'territorium'), NOW(), NOW());

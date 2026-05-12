@@ -66,7 +66,7 @@ public class ListService {
         BookEntity book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RecordNotFoundException("Book with id " + bookId + " not found"));
 
-        if (book.getDeletedAt() != null) {
+        if (book.getDeletedDate() != null) {
             throw new RecordNotFoundException("Book with id " + bookId + " not found");
         }
 

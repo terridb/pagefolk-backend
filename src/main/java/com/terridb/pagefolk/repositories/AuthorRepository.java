@@ -12,7 +12,7 @@ public interface AuthorRepository extends JpaRepository<AuthorEntity, Long> {
                 SELECT DISTINCT a FROM AuthorEntity a
                 WHERE
                     (:search IS NULL OR LOWER(a.fullName) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')))
-                            AND a.deletedAt IS NULL
+                            AND a.deletedDate IS NULL
             """)
     Page<AuthorEntity> searchAuthorsWithParams(
             @Param("search") String search,
