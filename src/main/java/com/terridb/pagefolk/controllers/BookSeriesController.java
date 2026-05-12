@@ -7,6 +7,7 @@ import com.terridb.pagefolk.services.BookSeriesService;
 import com.terridb.pagefolk.utils.UrlUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -41,17 +42,20 @@ public class BookSeriesController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookSeriesResponseDto> postBookSeries(@Valid @RequestBody BookSeriesRequestDto input) {
         BookSeriesResponseDto dto = bookSeriesService.postBookSeries(input);
         return ResponseEntity.created(UrlUtil.generateUri("series", dto.getId())).body(dto);
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookSeriesResponseDto> updateBookSeries(@Valid @RequestBody BookSeriesRequestDto input, @PathVariable Long id) {
         return ResponseEntity.ok(bookSeriesService.updateBookSeries(id, input));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteBookSeries(@PathVariable Long id) {
         bookSeriesService.deleteBookSeries(id);
         return ResponseEntity.noContent().build();
