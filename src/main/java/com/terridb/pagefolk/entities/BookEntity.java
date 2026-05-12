@@ -17,14 +17,18 @@ import java.util.Set;
 @Table(name = "books")
 public class BookEntity extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String title;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 13)
     private String isbn;
 
     private LocalDate releaseDate;
+
+    @Column(length = 5000)
     private String description;
+
+    @Column(length = 1024)
     private String imageUrl;
     private BigDecimal averageRating;
     private int ratingCount;
@@ -56,7 +60,4 @@ public class BookEntity extends BaseEntity {
     @ManyToMany(mappedBy = "books")
     private Set<ListEntity> lists = new HashSet<>();
 
-//    TODO wat is dit
-    @ManyToMany(mappedBy = "favoriteBooks")
-    private Set<ProfileEntity> profilesWithFavorite = new HashSet<>();
 }

@@ -13,16 +13,17 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "ratings")
 public class RatingEntity extends BaseEntity {
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 3, scale = 1)
     private BigDecimal score;
 
+    @Column(length = 5000)
     private String review;
 
     @ManyToOne
-    @JoinColumn(name = "book_id")
+    @JoinColumn(name = "book_id", nullable = false)
     private BookEntity book;
 
     @ManyToOne
-    @JoinColumn(name = "profile_id")
-    private ProfileEntity profile;
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 }

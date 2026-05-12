@@ -18,9 +18,10 @@ import java.util.Set;
 @Table(name = "genres")
 public class GenreEntity extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String name;
 
+    @Column(length = 5000)
     private String description;
 
     @ManyToMany(mappedBy = "genres")
