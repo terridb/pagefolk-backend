@@ -21,6 +21,7 @@ public class BookResponseDto {
     private String imageUrl;
     private BigDecimal averageRating;
     private int ratingCount;
+    private BigDecimal seriesOrder;
     private List<AuthorResponseDto> authors;
     private BookSeriesSimpleResponseDto series;
     private List<GenreResponseDto> genres;

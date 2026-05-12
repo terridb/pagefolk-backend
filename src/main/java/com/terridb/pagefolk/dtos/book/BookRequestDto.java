@@ -3,6 +3,7 @@ package com.terridb.pagefolk.dtos.book;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -35,4 +36,8 @@ public class BookRequestDto {
 
     @Positive(message = "Series id must be a positive number")
     private Long seriesId;
+
+    @DecimalMin(value = "0.1", message = "Series order must be at least 0.1")
+    @Digits(integer = 4, fraction = 1, message = "Series order must have at most 1 decimal place")
+    private BigDecimal seriesOrder;
 }

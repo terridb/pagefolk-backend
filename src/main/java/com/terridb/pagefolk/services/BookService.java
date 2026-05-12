@@ -147,6 +147,10 @@ public class BookService {
             existingEntity.setReleaseDate(input.getReleaseDate());
         }
 
+        if (input.getSeriesOrder() != null) {
+            existingEntity.setSeriesOrder(input.getSeriesOrder());
+        }
+
         BookEntity savedEntity = bookRepository.save(existingEntity);
         return bookMapper.toDto(savedEntity);
     }

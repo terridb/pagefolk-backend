@@ -25,6 +25,9 @@ public class BookEntity extends BaseEntity {
 
     private LocalDate releaseDate;
 
+    @Column(precision = 5, scale = 1)
+    private BigDecimal seriesOrder;
+
     @Column(length = 5000)
     private String description;
 

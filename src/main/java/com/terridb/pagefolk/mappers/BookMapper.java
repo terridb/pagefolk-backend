@@ -26,6 +26,7 @@ public class BookMapper {
         book.setIsbn(requestDto.getIsbn());
         book.setReleaseDate(requestDto.getReleaseDate());
         book.setDescription(requestDto.getDescription());
+        book.setSeriesOrder(requestDto.getSeriesOrder());
 
         return book;
     }
@@ -40,6 +41,7 @@ public class BookMapper {
         result.setImageUrl(entity.getImageUrl());
         result.setAverageRating(entity.getAverageRating());
         result.setRatingCount(entity.getRatingCount());
+        result.setSeriesOrder(entity.getSeriesOrder());
         result.setAuthors(
                 entity.getAuthors()
                         .stream()
