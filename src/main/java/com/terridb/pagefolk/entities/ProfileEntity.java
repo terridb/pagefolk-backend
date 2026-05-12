@@ -14,29 +14,14 @@ import java.util.Set;
 @Entity
 @Table(name = "profiles")
 public class ProfileEntity extends BaseEntity {
-    private String imageUrl;
-    private boolean deleted = false;
+    @Column(length = 1024)
+    private String profilePictureUrl;
 
-    @OneToMany(mappedBy = "profile")
-    private Set<RatingEntity> ratings = new HashSet<>();
+    @Column(length = 500)
+    private String bio;
 
-    @ManyToMany
-    @JoinTable(
-            name = "profile_favorite_books",
-            joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
-    )
-    private Set<BookEntity> favoriteBooks = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "profile_favorite_authors",
-            joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id")
-    )
-    private Set<AuthorEntity> favoriteAuthors = new HashSet<>();
-
-    @OneToMany(mappedBy = "profile")
-    private Set<ListEntity> lists = new HashSet<>();
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
 }
