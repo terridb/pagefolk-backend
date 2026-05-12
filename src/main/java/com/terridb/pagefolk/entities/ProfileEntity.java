@@ -20,6 +20,22 @@ public class ProfileEntity extends BaseEntity {
     @Column(length = 500)
     private String bio;
 
+    @ManyToMany
+    @JoinTable(
+            name = "profile_favorite_books",
+            joinColumns = @JoinColumn(name = "profile_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id")
+    )
+    private Set<BookEntity> favoriteBooks = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "profile_favorite_authors",
+            joinColumns = @JoinColumn(name = "profile_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    private Set<AuthorEntity> favoriteAuthors = new HashSet<>();
+
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
