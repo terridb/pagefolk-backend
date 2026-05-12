@@ -52,6 +52,7 @@ public class SecurityConfig {
                 .build();
     }
 
+    @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
@@ -60,7 +61,7 @@ public class SecurityConfig {
             public Collection<GrantedAuthority> convert(Jwt source) {
                 Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
                 for (String authority : getAuthorities(source)) {
-                    grantedAuthorities.add(new SimpleGrantedAuthority(authority));
+                    grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + authority));
                 }
                 return grantedAuthorities;
             }
@@ -81,6 +82,7 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
+    @Bean
     public JwtDecoder jwtDecoder() {
         NimbusJwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(issuer);
 
