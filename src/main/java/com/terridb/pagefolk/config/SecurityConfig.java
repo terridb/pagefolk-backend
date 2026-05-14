@@ -26,8 +26,8 @@ import java.util.Map;
 public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuer;
-    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
-    private String jwkSetUri;
+//    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+//    private String jwkSetUri;
     @Value("${spring.security.oauth2.resourceserver.jwt.audiences}")
     private String audience;
     @Value("${client-id}")
@@ -55,7 +55,16 @@ public class SecurityConfig {
                 .build();
     }
 
-    @Bean
+    public JwtDecoder jwtDecoder(){
+        NimbusJwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(issuer);
+
+        OAuth2TokenValidator<Jwt> audienceValidator = new JwtAudienceValidator(audience);
+        OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuer);
+        OAuth2TokenValidator<Jwt> withAudience = new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
+        jwtDecoder.setJwtValidator(withAudience);
+        return jwtDecoder;
+    }
+
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
@@ -68,8 +77,7 @@ public class SecurityConfig {
                 }
                 return grantedAuthorities;
             }
-
-            private List<String> getAuthorities(Jwt jwt) {
+            private List<String> getAuthorities(Jwt jwt){
                 Map<String, Object> resourceAcces = jwt.getClaim("resource_access");
                 if (resourceAcces != null) {
                     if (resourceAcces.get(clientId) instanceof Map) {
@@ -77,6 +85,12 @@ public class SecurityConfig {
                         if (client != null && client.containsKey("roles")) {
                             return (List<String>) client.get("roles");
                         }
+                    } else {
+                        Map<String, Object> realmAcces = jwt.getClaim("realm_access");
+                        if (realmAcces != null && realmAcces.containsKey("roles")) {
+                            return (List<String>) realmAcces.get("roles");
+                        }
+                        return new ArrayList<>();
                     }
                 }
                 return new ArrayList<>();
@@ -85,15 +99,5 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
 
-        OAuth2TokenValidator<Jwt> audienceValidator = new JwtAudienceValidator(audience);
-        OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuer);
-        OAuth2TokenValidator<Jwt> withAudience = new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
-        jwtDecoder.setJwtValidator(withAudience);
-
-        return jwtDecoder;
-    }
 }

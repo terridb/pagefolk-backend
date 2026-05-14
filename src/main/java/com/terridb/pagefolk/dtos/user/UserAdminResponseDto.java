@@ -7,10 +7,10 @@ import lombok.Setter;
 @Setter
 public class UserAdminResponseDto {
     private String id;
+    private String kcid;
     private String createdDate;
     private String editedDate;
     private String username;
     private String email;
     private String deletedDate;
-    private Long profileId;
 }

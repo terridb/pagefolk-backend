@@ -9,5 +9,4 @@ public class UserSimpleResponseDto {
     private String id;
     private String username;
     private String email;
-    private int profileId;
 }

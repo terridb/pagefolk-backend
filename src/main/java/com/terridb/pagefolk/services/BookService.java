@@ -192,7 +192,6 @@ public class BookService {
         existingEntity.getAuthors().forEach(author -> author.getBooks().remove(existingEntity));
         if (existingEntity.getSeries() != null) existingEntity.getSeries().getBooks().remove(existingEntity);
         existingEntity.getLists().forEach(list -> list.getBooks().remove(existingEntity));
-        existingEntity.getProfilesWithFavorite().forEach(profile -> profile.getFavoriteBooks().remove(existingEntity));
 
         bookRepository.delete(existingEntity);
     }

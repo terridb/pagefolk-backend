@@ -5,13 +5,11 @@ import com.terridb.pagefolk.dtos.list.ListResponseDto;
 import com.terridb.pagefolk.dtos.list.ListUpdateDto;
 import com.terridb.pagefolk.entities.BookEntity;
 import com.terridb.pagefolk.entities.ListEntity;
-// import com.terridb.pagefolk.entities.ProfileEntity;
 import com.terridb.pagefolk.exceptions.ConflictException;
 import com.terridb.pagefolk.exceptions.RecordNotFoundException;
 import com.terridb.pagefolk.mappers.ListMapper;
 import com.terridb.pagefolk.repositories.BookRepository;
 import com.terridb.pagefolk.repositories.ListRepository;
-// import com.terridb.pagefolk.repositories.ProfileRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,13 +17,11 @@ public class ListService {
 
     private final ListRepository listRepository;
     private final BookRepository bookRepository;
-//    private final ProfileRepository profileRepository;
     private final ListMapper listMapper;
 
-    public ListService(ListRepository listRepository, BookRepository bookRepository, /*ProfileRepository profileRepository,*/ ListMapper listMapper) {
+    public ListService(ListRepository listRepository, BookRepository bookRepository, ListMapper listMapper) {
         this.listRepository = listRepository;
         this.bookRepository = bookRepository;
-//        this.profileRepository = profileRepository;
         this.listMapper = listMapper;
     }
 
@@ -36,12 +32,7 @@ public class ListService {
     }
 
     public ListResponseDto postList(ListRequestDto input) {
-//        ProfileEntity profile = profileRepository.findById(input.getProfileId())
-//                .orElseThrow(() -> new RecordNotFoundException("Profile with id " + input.getProfileId() + " not found"));
-
         ListEntity entity = listMapper.toEntity(input, null);
-//        entity.setProfile(profile);
-
         return listMapper.toDto(listRepository.save(entity));
     }
 

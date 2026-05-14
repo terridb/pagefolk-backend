@@ -102,7 +102,6 @@ public class AuthorService {
         }
 
         existingEntity.getBooks().forEach(book -> book.getAuthors().remove(existingEntity));
-        existingEntity.getProfilesWithFavorite().forEach(profile -> profile.getFavoriteAuthors().remove(existingEntity));
 
         authorRepository.delete(existingEntity);
     }

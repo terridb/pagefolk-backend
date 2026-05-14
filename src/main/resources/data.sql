@@ -54,28 +54,29 @@ VALUES ((SELECT id FROM books WHERE isbn = '9781619634442'), (SELECT id FROM gen
        ((SELECT id FROM books WHERE isbn = '9780593336823'), (SELECT id FROM genres WHERE name = 'romance')),
        ((SELECT id FROM books WHERE isbn = '9781649374042'), (SELECT id FROM genres WHERE name = 'fantasy'));
 
-INSERT INTO users (id, created_date, edited_date, username, email, deleted_date)
-VALUES ('d37a7ae8-6df2-4f59-b70a-ea3b1a28222d', NOW(), NOW(), 'territorium', 'terridb@proton.me', NULL);
+INSERT INTO users (kcid, username, email, deleted_date, profile_picture_url, bio, created_date, edited_date)
+VALUES ('add050d4-f322-446b-ba0b-b0e56edf1c14', 'admin-test', 'admin@test.com', NULL, NULL, NULL, NOW(), NOW()),
+       ('c0cfba42-335d-4ac1-a1bf-3bc6b5091a9e', 'mod-test', 'mod@test.com', NULL, NULL, NULL, NOW(), NOW()),
+       ('a2a554c6-c851-48c3-b769-0b223889312b', 'member-test', 'member@test.com', NULL, NULL, NULL, NOW(), NOW());
 
-INSERT INTO profiles (user_id, created_date, edited_date)
-VALUES ((SELECT id FROM users WHERE username = 'territorium'), NOW(), NOW());
+INSERT INTO lists (name, description, user_id, required, created_date, edited_date)
+VALUES ('Want to Read',      NULL, (SELECT id FROM users WHERE username = 'member-test'), true,  NOW(), NOW()),
+       ('Currently Reading', NULL, (SELECT id FROM users WHERE username = 'member-test'), true,  NOW(), NOW()),
+       ('Finished',          NULL, (SELECT id FROM users WHERE username = 'member-test'), true,  NOW(), NOW()),
+       ('Did Not Finish',    NULL, (SELECT id FROM users WHERE username = 'member-test'), true,  NOW(), NOW()),
+       ('Fantasy Faves', 'My top fantasy books',
+                              (SELECT id FROM users WHERE username = 'member-test'), false, NOW(), NOW());
 
 INSERT INTO ratings (score, review, book_id, user_id, created_date, edited_date)
 VALUES (5, 'Obsessed.',
         (SELECT id FROM books WHERE isbn = '9781619634442'),
-        (SELECT id FROM users WHERE username = 'territorium'), NOW(), NOW()),
+        (SELECT id FROM users WHERE username = 'member-test'), NOW(), NOW()),
        (4, 'Loved the tension.',
         (SELECT id FROM books WHERE isbn = '9781649374042'),
-        (SELECT id FROM users WHERE username = 'territorium'), NOW(), NOW());
-
-INSERT INTO lists (name, description, user_id, required, created_date, edited_date)
-VALUES ('Fantasy Faves', 'My top fantasy books',
-        (SELECT id FROM users WHERE username = 'territorium'), false, NOW(), NOW()),
-       ('Want To Read', 'Books I plan to read soon',
-        (SELECT id FROM users WHERE username = 'territorium'), false, NOW(), NOW());
+        (SELECT id FROM users WHERE username = 'member-test'), NOW(), NOW());
 
 INSERT INTO list_books (list_id, book_id)
-VALUES ((SELECT id FROM lists WHERE name = 'Fantasy Faves'), (SELECT id FROM books WHERE isbn = '9781619634442')),
-       ((SELECT id FROM lists WHERE name = 'Fantasy Faves'), (SELECT id FROM books WHERE isbn = '9781649374042')),
-       ((SELECT id FROM lists WHERE name = 'Want To Read'), (SELECT id FROM books WHERE isbn = '9781619634466')),
-       ((SELECT id FROM lists WHERE name = 'Want To Read'), (SELECT id FROM books WHERE isbn = '9780593336823'));
+VALUES ((SELECT id FROM lists WHERE name = 'Fantasy Faves'),    (SELECT id FROM books WHERE isbn = '9781619634442')),
+       ((SELECT id FROM lists WHERE name = 'Fantasy Faves'),    (SELECT id FROM books WHERE isbn = '9781649374042')),
+       ((SELECT id FROM lists WHERE name = 'Want to Read'),     (SELECT id FROM books WHERE isbn = '9781619634466')),
+       ((SELECT id FROM lists WHERE name = 'Want to Read'),     (SELECT id FROM books WHERE isbn = '9780593336823'));

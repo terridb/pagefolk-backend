@@ -11,7 +11,7 @@ import java.util.List;
 @Component
 public class RatingMapper {
     private static final BookSimpleMapper bookSimpleMapper = new BookSimpleMapper();
-    private static final ProfileMapper profileMapper = new ProfileMapper();
+    private static final UserSimpleMapper userSimpleMapper = new UserSimpleMapper();
 
     public RatingEntity toEntity(RatingRequestDto requestDto, RatingEntity rating) {
         if (rating == null) {
@@ -30,7 +30,7 @@ public class RatingMapper {
         result.setScore(entity.getScore());
         result.setReview(entity.getReview());
         result.setBook(bookSimpleMapper.toDto(entity.getBook()));
-        result.setProfile(profileMapper.toDto(entity.getUser().getProfile()));
+        result.setUser(userSimpleMapper.toDto(entity.getUser()));
 
         return result;
     }

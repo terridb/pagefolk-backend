@@ -26,7 +26,4 @@ public class AuthorEntity extends BaseEntity {
     @ManyToMany(mappedBy = "authors")
     private Set<BookEntity> books = new HashSet<>();
 
-    @ManyToMany(mappedBy = "favoriteAuthors")
-    private Set<ProfileEntity> profilesWithFavorite = new HashSet<>();
-
 }

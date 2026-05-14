@@ -6,24 +6,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-public class UserEntity {
-    @Id
-    private UUID id;
-
-    @Column(name = "created_date", updatable = false)
-    private LocalDateTime createdDate;
-
-    @Column(name = "edited_date")
-    private LocalDateTime editDate;
+public class UserEntity extends BaseEntity{
+   @Column(nullable = false, unique = true)
+    private String kcid;
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
@@ -33,23 +26,15 @@ public class UserEntity {
 
     private LocalDate deletedDate;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private ProfileEntity profile;
+    @Column(length = 1024)
+    private String profilePictureUrl;
+
+    @Column(length = 500)
+    private String bio;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<ListEntity> lists;
+    private List<ListEntity> lists = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<RatingEntity> ratings;
-
-    @PrePersist
-    protected void onCreate() {
-        createdDate = LocalDateTime.now();
-        editDate = createdDate;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        editDate = LocalDateTime.now();
-    }
 }

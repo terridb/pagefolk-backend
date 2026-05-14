@@ -63,7 +63,4 @@ public class BookEntity extends BaseEntity {
     @ManyToMany(mappedBy = "books")
     private Set<ListEntity> lists = new HashSet<>();
 
-    @ManyToMany(mappedBy = "favoriteBooks")
-    private Set<ProfileEntity> profilesWithFavorite = new HashSet<>();
-
 }

@@ -11,6 +11,7 @@ public class UserDetailedResponseDto {
     private String id;
     private String username;
     private String email;
-    private int profileId;
+    private String bio;
+    private String profilePictureUrl;
     private List<Long> listIds;
 }
