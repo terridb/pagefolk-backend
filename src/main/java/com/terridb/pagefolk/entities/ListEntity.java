@@ -15,15 +15,16 @@ import java.util.Set;
 @Table(name = "lists")
 public class ListEntity extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String name;
 
+    @Column(length = 5000)
     private String description;
     private boolean required = false;
 
     @ManyToOne
-    @JoinColumn(name = "profile_id")
-    private ProfileEntity profile;
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @ManyToMany
     @JoinTable(

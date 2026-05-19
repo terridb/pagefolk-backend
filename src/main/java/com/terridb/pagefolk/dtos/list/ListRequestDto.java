@@ -13,8 +13,4 @@ public class ListRequestDto {
 
     @Size(message = "Description must be between 10 and 5000 characters", min = 10, max = 5000)
     private String description;
-
-//    TODO user/profile
-//    @NotNull(message = "Profile id is required")
-    private Long profileId;
 }

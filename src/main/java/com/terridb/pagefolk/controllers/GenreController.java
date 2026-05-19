@@ -6,6 +6,7 @@ import com.terridb.pagefolk.services.GenreService;
 import com.terridb.pagefolk.utils.UrlUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class GenreController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GenreResponseDto> postGenre(@Valid @RequestBody GenreRequestDto input) {
         GenreResponseDto dto = genreService.postGenre(input);
 
@@ -40,11 +42,13 @@ public class GenreController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GenreResponseDto> updateGenre(@Valid @RequestBody GenreRequestDto input, @PathVariable Long id) {
         return ResponseEntity.ok(genreService.updateGenre(id, input));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
         genreService.deleteGenre(id);
         return ResponseEntity.noContent().build();

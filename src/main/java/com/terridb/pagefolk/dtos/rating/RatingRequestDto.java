@@ -19,7 +19,7 @@ public class RatingRequestDto {
     @Positive(message = "Book id must be positive")
     private Long bookId;
 
-    @NotNull(message = "Profile id is required")
-    @Positive(message = "Profile id must be positive")
-    private Long profileId;
+    @NotNull(message = "User id is required")
+    @Positive(message = "User id must be positive")
+    private Long userId;
 }

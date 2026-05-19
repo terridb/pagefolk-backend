@@ -1,7 +1,7 @@
 package com.terridb.pagefolk.dtos.rating;
 
 import com.terridb.pagefolk.dtos.book.BookSimpleResponseDto;
-import com.terridb.pagefolk.dtos.profile.ProfileResponseDto;
+import com.terridb.pagefolk.dtos.user.UserSimpleResponseDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,5 +14,5 @@ public class RatingResponseDto {
     private BigDecimal score;
     private String review;
     private BookSimpleResponseDto book;
-    private ProfileResponseDto profile;
+    private UserSimpleResponseDto user;
 }

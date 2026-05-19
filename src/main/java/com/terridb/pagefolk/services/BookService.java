@@ -147,6 +147,10 @@ public class BookService {
             existingEntity.setReleaseDate(input.getReleaseDate());
         }
 
+        if (input.getSeriesOrder() != null) {
+            existingEntity.setSeriesOrder(input.getSeriesOrder());
+        }
+
         BookEntity savedEntity = bookRepository.save(existingEntity);
         return bookMapper.toDto(savedEntity);
     }
@@ -155,11 +159,11 @@ public class BookService {
         BookEntity existingEntity = bookRepository.findById(id)
                 .orElseThrow(() -> new RecordNotFoundException("Book with id " + id + " not found"));
 
-        if (existingEntity.getDeletedAt() != null) {
+        if (existingEntity.getDeletedDate() != null) {
             throw new ConflictException("Book with id " + id + " is already soft-deleted");
         }
 
-        existingEntity.setDeletedAt(LocalDate.now());
+        existingEntity.setDeletedDate(LocalDate.now());
         bookRepository.save(existingEntity);
     }
 
@@ -167,11 +171,11 @@ public class BookService {
         BookEntity existingEntity = bookRepository.findById(id)
                 .orElseThrow(() -> new RecordNotFoundException("Book with id " + id + " not found"));
 
-        if (existingEntity.getDeletedAt() == null) {
+        if (existingEntity.getDeletedDate() == null) {
             throw new ConflictException("Book with id " + id + " still exists and cannot be revived");
         }
 
-        existingEntity.setDeletedAt(null);
+        existingEntity.setDeletedDate(null);
         BookEntity savedEntity = bookRepository.save(existingEntity);
         return bookMapper.toDto(savedEntity);
     }
@@ -180,15 +184,14 @@ public class BookService {
         BookEntity existingEntity = bookRepository.findById(id)
                 .orElseThrow(() -> new RecordNotFoundException("Book with id " + id + " not found"));
 
-        if (existingEntity.getDeletedAt() == null) {
+        if (existingEntity.getDeletedDate() == null) {
             throw new ConflictException("Book with id " + id + " should first be soft-deleted before full delete");
         }
 
         existingEntity.getGenres().forEach(genre -> genre.getBooks().remove(existingEntity));
         existingEntity.getAuthors().forEach(author -> author.getBooks().remove(existingEntity));
-        existingEntity.getSeries().getBooks().remove(existingEntity);
+        if (existingEntity.getSeries() != null) existingEntity.getSeries().getBooks().remove(existingEntity);
         existingEntity.getLists().forEach(list -> list.getBooks().remove(existingEntity));
-        existingEntity.getProfilesWithFavorite().forEach(profile -> profile.getFavoriteBooks().remove(existingEntity));
 
         bookRepository.delete(existingEntity);
     }

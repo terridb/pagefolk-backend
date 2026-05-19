@@ -9,6 +9,7 @@ import com.terridb.pagefolk.services.BookService;
 import com.terridb.pagefolk.utils.UrlUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -45,6 +46,7 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookResponseDto> postBook(@Valid @RequestBody BookRequestDto input) {
         BookResponseDto dto = bookService.postBook(input);
 
@@ -54,22 +56,26 @@ public class BookController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookResponseDto> updateBook(@Valid @RequestBody BookPatchDto input, @PathVariable Long id) {
         return ResponseEntity.ok(bookService.updateBook(id, input));
     }
 
     @PatchMapping("/{id}/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookResponseDto> softDeleteBook(@PathVariable Long id) {
         bookService.softDeleteBook(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/revive")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookResponseDto> reviveBook(@PathVariable Long id) {
         return ResponseEntity.ok(bookService.reviveBook(id));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();

@@ -4,7 +4,7 @@ VALUES ('fantasy', 'Magic, worlds, mythical creatures', NOW(), NOW()),
        ('dystopian', 'Broken societies and survival', NOW(), NOW()),
        ('science fiction', 'Futuristic science themes', NOW(), NOW());
 
-INSERT INTO authors (full_name, deleted_at, created_date, edited_date)
+INSERT INTO authors (full_name, deleted_date, created_date, edited_date)
 VALUES ('Sarah J. Maas', NULL, NOW(), NOW()),
        ('Suzanne Collins', NULL, NOW(), NOW()),
        ('Ali Hazelwood', NULL, NOW(), NOW()),
@@ -15,19 +15,20 @@ VALUES ('A Court of Thorns and Roses', 'Fae romance saga', NOW(), NOW()),
        ('The Hunger Games', 'Dystopian survival trilogy', NOW(), NOW()),
        ('Empyrean', 'Dragon rider war college', NOW(), NOW());
 
-INSERT INTO books (title, isbn, release_date, description, image_url, average_rating, rating_count, series_id, deleted_at, created_date, edited_date)
+INSERT INTO books (title, isbn, release_date, description, image_url, average_rating, rating_count, series_id,
+                   series_order, deleted_date, created_date, edited_date)
 VALUES ('A Court of Thorns and Roses', '9781619634442', '2015-05-05', 'Fae fantasy romance', NULL, 4.6, 1200,
-        (SELECT id FROM book_series WHERE title = 'A Court of Thorns and Roses'), NULL, NOW(), NOW()),
+        (SELECT id FROM book_series WHERE title = 'A Court of Thorns and Roses'), 1.0, NULL, NOW(), NOW()),
        ('A Court of Mist and Fury', '9781619634466', '2016-05-03', 'Sequel in the ACOTAR series', NULL, 4.7, 980,
-        (SELECT id FROM book_series WHERE title = 'A Court of Thorns and Roses'), NULL, NOW(), NOW()),
+        (SELECT id FROM book_series WHERE title = 'A Court of Thorns and Roses'), 2.0, NULL, NOW(), NOW()),
        ('The Hunger Games', '9780439023528', '2008-09-14', 'Teens fight to survive in dystopia', NULL, 4.5, 2100,
-        (SELECT id FROM book_series WHERE title = 'The Hunger Games'), NULL, NOW(), NOW()),
+        (SELECT id FROM book_series WHERE title = 'The Hunger Games'), 1.0, NULL, NOW(), NOW()),
        ('Catching Fire', '9780439023498', '2009-09-01', 'Second Hunger Games book', NULL, 4.4, 1850,
-        (SELECT id FROM book_series WHERE title = 'The Hunger Games'), NULL, NOW(), NOW()),
+        (SELECT id FROM book_series WHERE title = 'The Hunger Games'), 2.0, NULL, NOW(), NOW()),
        ('The Love Hypothesis', '9780593336823', '2021-09-14', 'STEM fake dating romance', NULL, 4.2, 760,
-        NULL, NULL, NOW(), NOW()),
+        NULL, NULL, NULL, NOW(), NOW()),
        ('Fourth Wing', '9781649374042', '2023-04-05', 'Dragon riding war college', NULL, 4.6, 1500,
-        (SELECT id FROM book_series WHERE title = 'Empyrean'), NULL, NOW(), NOW());
+        (SELECT id FROM book_series WHERE title = 'Empyrean'), 1.0, NULL, NOW(), NOW());
 
 INSERT INTO book_authors (book_id, author_id)
 VALUES ((SELECT id FROM books WHERE isbn = '9781619634442'),
@@ -53,37 +54,29 @@ VALUES ((SELECT id FROM books WHERE isbn = '9781619634442'), (SELECT id FROM gen
        ((SELECT id FROM books WHERE isbn = '9780593336823'), (SELECT id FROM genres WHERE name = 'romance')),
        ((SELECT id FROM books WHERE isbn = '9781649374042'), (SELECT id FROM genres WHERE name = 'fantasy'));
 
-INSERT INTO profiles (image_url, deleted, created_date, edited_date)
-VALUES (NULL, false, NOW(), NOW());
+INSERT INTO users (kcid, username, email, deleted_date, profile_picture_url, bio, created_date, edited_date)
+VALUES ('add050d4-f322-446b-ba0b-b0e56edf1c14', 'admin-test', 'admin@test.com', NULL, NULL, NULL, NOW(), NOW()),
+       ('c0cfba42-335d-4ac1-a1bf-3bc6b5091a9e', 'mod-test', 'mod@test.com', NULL, NULL, NULL, NOW(), NOW()),
+       ('a2a554c6-c851-48c3-b769-0b223889312b', 'member-test', 'member@test.com', NULL, NULL, NULL, NOW(), NOW());
 
-INSERT INTO profile_favorite_books (profile_id, book_id)
-VALUES ((SELECT id FROM profiles ORDER BY created_date LIMIT 1),
-       (SELECT id FROM books WHERE isbn = '9781619634442')),
-       ((SELECT id FROM profiles ORDER BY created_date LIMIT 1), (SELECT id FROM books WHERE isbn = '9780593336823')),
-       ((SELECT id FROM profiles ORDER BY created_date LIMIT 1), (SELECT id FROM books WHERE isbn = '9781649374042'));
+INSERT INTO lists (name, description, user_id, required, created_date, edited_date)
+VALUES ('Want to Read',      NULL, (SELECT id FROM users WHERE username = 'member-test'), true,  NOW(), NOW()),
+       ('Currently Reading', NULL, (SELECT id FROM users WHERE username = 'member-test'), true,  NOW(), NOW()),
+       ('Finished',          NULL, (SELECT id FROM users WHERE username = 'member-test'), true,  NOW(), NOW()),
+       ('Did Not Finish',    NULL, (SELECT id FROM users WHERE username = 'member-test'), true,  NOW(), NOW()),
+       ('Fantasy Faves', 'My top fantasy books',
+                              (SELECT id FROM users WHERE username = 'member-test'), false, NOW(), NOW());
 
-INSERT INTO profile_favorite_authors (profile_id, author_id)
-VALUES ((SELECT id FROM profiles ORDER BY created_date LIMIT 1),
-       (SELECT id FROM authors WHERE full_name = 'Sarah J. Maas')),
-       ((SELECT id FROM profiles ORDER BY created_date LIMIT 1), (SELECT id FROM authors WHERE full_name = 'Rebecca Yarros'));
-
-INSERT INTO ratings (score, review, book_id, profile_id, created_date, edited_date)
+INSERT INTO ratings (score, review, book_id, user_id, created_date, edited_date)
 VALUES (5, 'Obsessed.',
         (SELECT id FROM books WHERE isbn = '9781619634442'),
-        (SELECT id FROM profiles ORDER BY created_date LIMIT 1), NOW(), NOW()),
+        (SELECT id FROM users WHERE username = 'member-test'), NOW(), NOW()),
        (4, 'Loved the tension.',
         (SELECT id FROM books WHERE isbn = '9781649374042'),
-        (SELECT id FROM profiles ORDER BY created_date LIMIT 1),
-        NOW(), NOW());
-
-INSERT INTO lists (name, description, profile_id, created_date, edited_date)
-VALUES ('Fantasy Faves', 'My top fantasy books',
-        (SELECT id FROM profiles ORDER BY created_date LIMIT 1), NOW(), NOW()),
-       ('Want To Read', 'Books I plan to read soon',
-        (SELECT id FROM profiles ORDER BY created_date LIMIT 1), NOW(), NOW());
+        (SELECT id FROM users WHERE username = 'member-test'), NOW(), NOW());
 
 INSERT INTO list_books (list_id, book_id)
-VALUES ((SELECT id FROM lists WHERE name = 'Fantasy Faves'), (SELECT id FROM books WHERE isbn = '9781619634442')),
-       ((SELECT id FROM lists WHERE name = 'Fantasy Faves'), (SELECT id FROM books WHERE isbn = '9781649374042')),
-       ((SELECT id FROM lists WHERE name = 'Want To Read'), (SELECT id FROM books WHERE isbn = '9781619634466')),
-       ((SELECT id FROM lists WHERE name = 'Want To Read'), (SELECT id FROM books WHERE isbn = '9780593336823'));
+VALUES ((SELECT id FROM lists WHERE name = 'Fantasy Faves'),    (SELECT id FROM books WHERE isbn = '9781619634442')),
+       ((SELECT id FROM lists WHERE name = 'Fantasy Faves'),    (SELECT id FROM books WHERE isbn = '9781649374042')),
+       ((SELECT id FROM lists WHERE name = 'Want to Read'),     (SELECT id FROM books WHERE isbn = '9781619634466')),
+       ((SELECT id FROM lists WHERE name = 'Want to Read'),     (SELECT id FROM books WHERE isbn = '9780593336823'));

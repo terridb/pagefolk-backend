@@ -18,14 +18,12 @@ import java.util.Set;
 @Entity
 @Table(name = "authors")
 public class AuthorEntity extends BaseEntity {
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String fullName;
 
-    private LocalDate deletedAt;
+    private LocalDate deletedDate;
 
     @ManyToMany(mappedBy = "authors")
     private Set<BookEntity> books = new HashSet<>();
 
-    @ManyToMany(mappedBy = "favoriteAuthors")
-    private Set<ProfileEntity> profilesWithFavorite = new HashSet<>();
 }

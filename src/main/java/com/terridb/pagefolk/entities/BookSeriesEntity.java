@@ -17,9 +17,10 @@ import java.util.Set;
 @Entity
 @Table(name = "book_series")
 public class BookSeriesEntity extends BaseEntity {
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String title;
 
+    @Column(length = 5000)
     private String description;
 
     @OneToMany(mappedBy = "series")

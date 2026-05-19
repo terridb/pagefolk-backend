@@ -3,6 +3,7 @@ package com.terridb.pagefolk.dtos.book;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -17,4 +18,8 @@ public class BookPatchDto {
 
     @Size(message = "Description must be between 10 and 5000 characters", min = 10, max = 5000)
     private String description;
+
+    @DecimalMin(value = "0.1", message = "Series order must be at least 0.1")
+    @Digits(integer = 4, fraction = 1, message = "Series order must have at most 1 decimal place")
+    private BigDecimal seriesOrder;
 }
