@@ -6,6 +6,8 @@ import com.terridb.pagefolk.dtos.user.UserAdminResponseDto;
 import com.terridb.pagefolk.dtos.user.UserDetailedResponseDto;
 import com.terridb.pagefolk.dtos.user.UserFilterDto;
 import com.terridb.pagefolk.dtos.user.UserSimpleResponseDto;
+import com.terridb.pagefolk.dtos.user.UserUpdateRequestDto;
+import com.terridb.pagefolk.exceptions.ConflictException;
 import com.terridb.pagefolk.entities.ListEntity;
 import com.terridb.pagefolk.entities.UserEntity;
 import com.terridb.pagefolk.exceptions.RecordNotFoundException;
@@ -67,6 +69,23 @@ public class UserService {
         return list;
     }
 
+    public UserDetailedResponseDto updateUser(Authentication authentication, UserUpdateRequestDto input) {
+        Jwt jwt = ((JwtAuthenticationToken) authentication).getToken();
+        UserEntity user = findOrCreateUserEntity(jwt);
+
+        if (input.getUsername() != null) {
+            if (userRepository.existsByUsernameAndKcidNot(input.getUsername(), user.getKcid())) {
+                throw new ConflictException("Username " + input.getUsername() + " is already taken");
+            }
+            user.setUsername(input.getUsername());
+        }
+        if (input.getBio() != null) {
+            user.setBio(input.getBio());
+        }
+
+        return userMapper.toDetailedDto(userRepository.save(user));
+    }
+
     public PaginatedResponse<UserSimpleResponseDto> getAllUsers(UserFilterDto filter) {
         if (filter.getPage() < 0) filter.setPage(0);
         if (filter.getSize() <= 0 || filter.getSize() > 100) filter.setSize(20);
@@ -96,13 +115,20 @@ public class UserService {
         return userMapper.toPaginatedDto(userRepository.searchUsersWithParams(search, deleted, pageable));
     }
 
+    public UserDetailedResponseDto getUserById(Long id) {
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("User with id " + id + " not found"));
+        if (user.getDeletedDate() != null) {
+            throw new RecordNotFoundException("User with id " + id + " not found");
+        }
+        return userMapper.toDetailedDto(user);
+    }
+
     public UserAdminDetailedResponseDto getUserByIdForAdmins(Long id) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new RecordNotFoundException("User with id " + id + " not found"));
         return userMapper.toAdminDetailedDto(user);
     }
-
-//    Get user by id with public DTO is needed by everyone when authenticated
 
 //    Search users is needed by everyone when authenticated
 }

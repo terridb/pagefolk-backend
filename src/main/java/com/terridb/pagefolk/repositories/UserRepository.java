@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByKcid(String kcid);
     Optional<UserEntity> findByKcid(String kcid);
+    boolean existsByUsernameAndKcidNot(String username, String kcid);
 
     @Query("""
                 SELECT u FROM UserEntity u

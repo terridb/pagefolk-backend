@@ -6,12 +6,16 @@ import com.terridb.pagefolk.dtos.user.UserAdminResponseDto;
 import com.terridb.pagefolk.dtos.user.UserDetailedResponseDto;
 import com.terridb.pagefolk.dtos.user.UserFilterDto;
 import com.terridb.pagefolk.dtos.user.UserSimpleResponseDto;
+import com.terridb.pagefolk.dtos.user.UserUpdateRequestDto;
 import com.terridb.pagefolk.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +32,18 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDetailedResponseDto> getMe(Authentication authentication) {
         return ResponseEntity.ok(userService.findOrCreateUser(authentication));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<UserDetailedResponseDto> updateMe(
+            Authentication authentication,
+            @Valid @RequestBody UserUpdateRequestDto input) {
+        return ResponseEntity.ok(userService.updateUser(authentication, input));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDetailedResponseDto> getUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping
