@@ -34,6 +34,26 @@ public class UserController {
         return ResponseEntity.ok(userService.findOrCreateUser(authentication));
     }
 
+    @PatchMapping("/me/delete")
+    public ResponseEntity<Void> softDeleteMe(Authentication authentication) {
+        userService.softDeleteCurrentUser(authentication);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/admin/{id}/delete")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    public ResponseEntity<Void> softDeleteUser(@PathVariable Long id) {
+        userService.softDeleteUserById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/admin/{id}/revive")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    public ResponseEntity<Void> reviveUser(@PathVariable Long id) {
+        userService.reviveUserById(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/me")
     public ResponseEntity<UserDetailedResponseDto> updateMe(
             Authentication authentication,

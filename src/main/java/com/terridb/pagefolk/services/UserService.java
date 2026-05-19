@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.stream.Stream;
 
 @Service
@@ -113,6 +114,43 @@ public class UserService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         return userMapper.toPaginatedDto(userRepository.searchUsersWithParams(search, deleted, pageable));
+    }
+
+    public void softDeleteCurrentUser(Authentication authentication) {
+        Jwt jwt = ((JwtAuthenticationToken) authentication).getToken();
+        UserEntity user = userRepository.findByKcid(jwt.getSubject())
+                .orElseThrow(() -> new RecordNotFoundException("User not found"));
+
+        if (user.getDeletedDate() != null) {
+            throw new ConflictException("User is already soft-deleted");
+        }
+
+        user.setDeletedDate(LocalDate.now());
+        userRepository.save(user);
+    }
+
+    public void softDeleteUserById(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("User with id " + id + " not found"));
+
+        if (user.getDeletedDate() != null) {
+            throw new ConflictException("User with id " + id + " is already soft-deleted");
+        }
+
+        user.setDeletedDate(LocalDate.now());
+        userRepository.save(user);
+    }
+
+    public void reviveUserById(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("User with id " + id + " not found"));
+
+        if (user.getDeletedDate() == null) {
+            throw new ConflictException("User with id " + id + " is not soft-deleted and cannot be revived");
+        }
+
+        user.setDeletedDate(null);
+        userRepository.save(user);
     }
 
     public UserDetailedResponseDto getUserById(Long id) {
