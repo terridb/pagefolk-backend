@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/lists")
 public class ListController {
@@ -27,7 +29,11 @@ public class ListController {
         this.listService = listService;
     }
 
-//    TODO member
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<List<ListResponseDto>> getListsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(listService.getListsByUserId(userId));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<ListResponseDto> getListById(@PathVariable Long id) {

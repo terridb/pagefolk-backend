@@ -92,12 +92,7 @@ public class UserService {
     }
 
     public PaginatedResponse<UserSimpleResponseDto> getAllUsers(UserFilterDto filter) {
-        if (filter.getPage() < 0) filter.setPage(0);
-        if (filter.getSize() <= 0 || filter.getSize() > 100) filter.setSize(20);
-
-        Sort.Direction sortDirection = Sort.Direction.fromString(filter.getDirection());
-        Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(), Sort.by(sortDirection, filter.getSortBy()));
-
+        Pageable pageable = buildPageable(filter.getPage(), filter.getSize(), filter.getSortBy(), filter.getDirection());
         return userMapper.toPaginatedSimpleDto(userRepository.searchUsersWithParams(filter.getSearch(), false, pageable));
     }
 
@@ -109,15 +104,14 @@ public class UserService {
             String sortBy,
             String direction
     ) {
+        Pageable pageable = buildPageable(page, size, sortBy, direction);
+        return userMapper.toPaginatedDto(userRepository.searchUsersWithParams(search, deleted, pageable));
+    }
+
+    private Pageable buildPageable(int page, int size, String sortBy, String direction) {
         if (page < 0) page = 0;
         if (size <= 0 || size > 100) size = 20;
-
-        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
-        Sort sort = Sort.by(sortDirection, sortBy);
-
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        return userMapper.toPaginatedDto(userRepository.searchUsersWithParams(search, deleted, pageable));
+        return PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
     }
 
     public void softDeleteCurrentUser(Authentication authentication) {

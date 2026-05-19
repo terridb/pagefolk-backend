@@ -10,19 +10,33 @@ import com.terridb.pagefolk.exceptions.RecordNotFoundException;
 import com.terridb.pagefolk.mappers.ListMapper;
 import com.terridb.pagefolk.repositories.BookRepository;
 import com.terridb.pagefolk.repositories.ListRepository;
+import com.terridb.pagefolk.repositories.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ListService {
 
     private final ListRepository listRepository;
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
     private final ListMapper listMapper;
 
-    public ListService(ListRepository listRepository, BookRepository bookRepository, ListMapper listMapper) {
+    public ListService(ListRepository listRepository, BookRepository bookRepository, UserRepository userRepository, ListMapper listMapper) {
         this.listRepository = listRepository;
         this.bookRepository = bookRepository;
+        this.userRepository = userRepository;
         this.listMapper = listMapper;
+    }
+
+    public List<ListResponseDto> getListsByUserId(Long userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new RecordNotFoundException("User with id " + userId + " not found"));
+        if (user.getDeletedDate() != null) {
+            throw new RecordNotFoundException("User with id " + userId + " not found");
+        }
+        return listMapper.toDto(listRepository.findAllByUserId(userId));
     }
 
     public ListResponseDto getListById(Long id) {
