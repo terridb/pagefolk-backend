@@ -12,6 +12,7 @@ import com.terridb.pagefolk.entities.ListEntity;
 import com.terridb.pagefolk.entities.UserEntity;
 import com.terridb.pagefolk.exceptions.RecordNotFoundException;
 import com.terridb.pagefolk.mappers.UserMapper;
+import com.terridb.pagefolk.repositories.RatingRepository;
 import com.terridb.pagefolk.repositories.UserRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.stream.Stream;
@@ -28,10 +30,12 @@ import java.util.stream.Stream;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RatingRepository ratingRepository;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, RatingRepository ratingRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.ratingRepository = ratingRepository;
         this.userMapper = userMapper;
     }
 
@@ -153,6 +157,19 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void deleteUserById(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("User with id " + id + " not found"));
+
+        if (user.getDeletedDate() == null) {
+            throw new ConflictException("User with id " + id + " should first be soft-deleted before full delete");
+        }
+
+        ratingRepository.findAllByUser(user).forEach(r -> r.setUser(null));
+        userRepository.delete(user);
+    }
+
     public UserDetailedResponseDto getUserById(Long id) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new RecordNotFoundException("User with id " + id + " not found"));
@@ -167,6 +184,4 @@ public class UserService {
                 .orElseThrow(() -> new RecordNotFoundException("User with id " + id + " not found"));
         return userMapper.toAdminDetailedDto(user);
     }
-
-//    Search users is needed by everyone when authenticated
 }
