@@ -2,8 +2,10 @@ package com.terridb.pagefolk.services;
 
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.dtos.rating.RatingFilterDto;
+import com.terridb.pagefolk.dtos.rating.RatingRequestDto;
 import com.terridb.pagefolk.dtos.rating.RatingResponseDto;
 import com.terridb.pagefolk.entities.BookEntity;
+import com.terridb.pagefolk.entities.RatingEntity;
 import com.terridb.pagefolk.entities.UserEntity;
 import com.terridb.pagefolk.exceptions.RecordNotFoundException;
 import com.terridb.pagefolk.mappers.RatingMapper;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RatingService {
@@ -42,17 +45,43 @@ public class RatingService {
     }
 
     public PaginatedResponse<RatingResponseDto> getRatingsByUserId(Long userId, RatingFilterDto filter) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RecordNotFoundException("User with id: " + userId + " not found"));
-
+        UserEntity user = findUserById(userId);
         return ratingMapper.toPaginatedDto(ratingRepository.findAllByUser(user, buildPageable(filter)));
     }
 
     public PaginatedResponse<RatingResponseDto> getRatingsByBookId(Long bookId, RatingFilterDto filter) {
-        BookEntity book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RecordNotFoundException("Book with id: " + bookId + " not found"));
-
+        BookEntity book = findBookById(bookId);
         return ratingMapper.toPaginatedDto(ratingRepository.findAllByBook(book, buildPageable(filter)));
+    }
+
+    @Transactional
+    public RatingResponseDto postRating(RatingRequestDto input) {
+        RatingEntity entity = ratingMapper.toEntity(input, null);
+        BookEntity book = findBookById(input.getBookId());
+        UserEntity user = findUserById(input.getUserId());
+
+        entity.setBook(book);
+        entity.setUser(user);
+
+        RatingEntity savedEntity = ratingRepository.save(entity);
+        updateBookStats(book);
+        return ratingMapper.toDto(savedEntity);
+    }
+
+    private void updateBookStats(BookEntity book) {
+        book.setAverageRating(ratingRepository.calculateAverageRatingByBook(book));
+        book.setRatingCount((int) ratingRepository.countByBook(book));
+        bookRepository.save(book);
+    }
+
+    private UserEntity findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RecordNotFoundException("User with id: " + userId + " not found"));
+    }
+
+    private BookEntity findBookById(Long bookId) {
+        return bookRepository.findById(bookId)
+                .orElseThrow(() -> new RecordNotFoundException("Book with id: " + bookId + " not found"));
     }
 
     private Pageable buildPageable(RatingFilterDto filter) {

@@ -2,14 +2,14 @@ package com.terridb.pagefolk.controllers;
 
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.dtos.rating.RatingFilterDto;
+import com.terridb.pagefolk.dtos.rating.RatingRequestDto;
 import com.terridb.pagefolk.dtos.rating.RatingResponseDto;
 import com.terridb.pagefolk.services.RatingService;
+import com.terridb.pagefolk.utils.UrlUtil;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/ratings")
@@ -21,10 +21,16 @@ public class RatingController {
         this.ratingService = ratingService;
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<PaginatedResponse<RatingResponseDto>> getAllRatings(RatingFilterDto filter) {
         return ResponseEntity.ok(ratingService.getAllRatings(filter));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    public ResponseEntity<RatingResponseDto> getRatingById(@PathVariable Long id) {
+        return ResponseEntity.ok(ratingService.getRatingById(id));
     }
 
     @GetMapping("/user/{userId}")
@@ -39,5 +45,14 @@ public class RatingController {
             @PathVariable Long bookId,
             RatingFilterDto filter) {
         return ResponseEntity.ok(ratingService.getRatingsByBookId(bookId, filter));
+    }
+
+    @PostMapping
+    public ResponseEntity<RatingResponseDto> createRating(@Valid @RequestBody RatingRequestDto input) {
+        RatingResponseDto dto = ratingService.postRating(input);
+
+        return ResponseEntity
+                .created(UrlUtil.generateUri("ratings", dto.getId()))
+                .body(dto);
     }
 }
