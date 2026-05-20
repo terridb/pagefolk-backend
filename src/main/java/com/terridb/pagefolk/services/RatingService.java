@@ -3,6 +3,7 @@ package com.terridb.pagefolk.services;
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.dtos.rating.RatingFilterDto;
 import com.terridb.pagefolk.dtos.rating.RatingRequestDto;
+import com.terridb.pagefolk.dtos.rating.RatingUpdateRequestDto;
 import com.terridb.pagefolk.dtos.rating.RatingResponseDto;
 import com.terridb.pagefolk.entities.BookEntity;
 import com.terridb.pagefolk.entities.RatingEntity;
@@ -66,6 +67,26 @@ public class RatingService {
         RatingEntity savedEntity = ratingRepository.save(entity);
         updateBookStats(book);
         return ratingMapper.toDto(savedEntity);
+    }
+
+    @Transactional
+    public RatingResponseDto updateRating(Long id, RatingUpdateRequestDto input) {
+        RatingEntity entity = ratingRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Rating with id: " + id + " not found"));
+
+        RatingEntity savedEntity = ratingRepository.save(ratingMapper.toEntity(input, entity));
+        updateBookStats(entity.getBook());
+        return ratingMapper.toDto(savedEntity);
+    }
+
+    @Transactional
+    public void deleteRating(Long id) {
+        RatingEntity entity = ratingRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Rating with id: " + id + " not found"));
+
+        BookEntity book = entity.getBook();
+        ratingRepository.delete(entity);
+        updateBookStats(book);
     }
 
     private void updateBookStats(BookEntity book) {

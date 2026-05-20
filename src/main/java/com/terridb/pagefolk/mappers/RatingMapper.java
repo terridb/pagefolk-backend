@@ -3,6 +3,7 @@ package com.terridb.pagefolk.mappers;
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.dtos.rating.RatingRequestDto;
 import com.terridb.pagefolk.dtos.rating.RatingResponseDto;
+import com.terridb.pagefolk.dtos.rating.RatingUpdateRequestDto;
 import com.terridb.pagefolk.entities.RatingEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,12 @@ public class RatingMapper {
         rating.setScore(requestDto.getScore());
         rating.setReview(requestDto.getReview());
 
+        return rating;
+    }
+
+    public RatingEntity toEntity(RatingUpdateRequestDto requestDto, RatingEntity rating) {
+        rating.setScore(requestDto.getScore());
+        rating.setReview(requestDto.getReview());
         return rating;
     }
 

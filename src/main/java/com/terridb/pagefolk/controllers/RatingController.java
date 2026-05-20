@@ -4,6 +4,7 @@ import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.dtos.rating.RatingFilterDto;
 import com.terridb.pagefolk.dtos.rating.RatingRequestDto;
 import com.terridb.pagefolk.dtos.rating.RatingResponseDto;
+import com.terridb.pagefolk.dtos.rating.RatingUpdateRequestDto;
 import com.terridb.pagefolk.services.RatingService;
 import com.terridb.pagefolk.utils.UrlUtil;
 import jakarta.validation.Valid;
@@ -54,5 +55,18 @@ public class RatingController {
         return ResponseEntity
                 .created(UrlUtil.generateUri("ratings", dto.getId()))
                 .body(dto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<RatingResponseDto> updateRating(
+            @PathVariable Long id,
+            @Valid @RequestBody RatingUpdateRequestDto input) {
+        return ResponseEntity.ok(ratingService.updateRating(id, input));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRating(@PathVariable Long id) {
+        ratingService.deleteRating(id);
+        return ResponseEntity.noContent().build();
     }
 }
