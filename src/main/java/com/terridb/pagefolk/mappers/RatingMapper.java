@@ -1,8 +1,10 @@
 package com.terridb.pagefolk.mappers;
 
+import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.dtos.rating.RatingRequestDto;
 import com.terridb.pagefolk.dtos.rating.RatingResponseDto;
 import com.terridb.pagefolk.entities.RatingEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -41,5 +43,17 @@ public class RatingMapper {
             result.add(toDto(entity));
         }
         return result;
+    }
+
+    public PaginatedResponse<RatingResponseDto> toPaginatedDto(Page<RatingEntity> entitiesPage) {
+        PaginatedResponse<RatingResponseDto> response = new PaginatedResponse<>();
+        response.setContent(toDto(entitiesPage.getContent()));
+        response.setPage(entitiesPage.getNumber());
+        response.setSize(entitiesPage.getSize());
+        response.setTotalElements(entitiesPage.getTotalElements());
+        response.setTotalPages(entitiesPage.getTotalPages());
+        response.setHasNextPage(response.getPage() + 1 < response.getTotalPages());
+        response.setHasPreviousPage(response.getPage() > 0);
+        return response;
     }
 }
