@@ -7,11 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class UserDetailedResponseDto {
-    private String id;
-    private String username;
-    private String email;
+public class UserDetailedResponseDto extends UserSimpleResponseDto {
     private String bio;
-    private String profilePictureUrl;
     private List<Long> listIds;
 }

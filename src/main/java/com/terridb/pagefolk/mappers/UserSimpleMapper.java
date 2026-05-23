@@ -12,6 +12,7 @@ public class UserSimpleMapper {
         result.setId(entity.getId().toString());
         result.setUsername(entity.getUsername());
         result.setEmail(entity.getEmail());
+        result.setProfilePictureUrl(entity.getProfilePictureUrl());
         return result;
     }
 }
