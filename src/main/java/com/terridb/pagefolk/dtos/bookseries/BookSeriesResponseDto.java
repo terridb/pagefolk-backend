@@ -8,9 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class BookSeriesResponseDto {
-    private Long id;
-    private String title;
+public class BookSeriesResponseDto extends BookSimpleResponseDto {
     private String description;
     private List<BookSimpleResponseDto> books;
 }
