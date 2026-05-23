@@ -21,4 +21,6 @@ public interface RatingRepository extends JpaRepository<RatingEntity, Long> {
     BigDecimal calculateAverageRatingByBook(@Param("book") BookEntity book);
 
     long countByBook(BookEntity book);
+
+    boolean existsByBookAndUser(BookEntity book, UserEntity user);
 }

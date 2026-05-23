@@ -3,11 +3,12 @@ package com.terridb.pagefolk.services;
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.dtos.rating.RatingFilterDto;
 import com.terridb.pagefolk.dtos.rating.RatingRequestDto;
-import com.terridb.pagefolk.dtos.rating.RatingUpdateRequestDto;
 import com.terridb.pagefolk.dtos.rating.RatingResponseDto;
+import com.terridb.pagefolk.dtos.rating.RatingUpdateRequestDto;
 import com.terridb.pagefolk.entities.BookEntity;
 import com.terridb.pagefolk.entities.RatingEntity;
 import com.terridb.pagefolk.entities.UserEntity;
+import com.terridb.pagefolk.exceptions.ConflictException;
 import com.terridb.pagefolk.exceptions.RecordNotFoundException;
 import com.terridb.pagefolk.mappers.RatingMapper;
 import com.terridb.pagefolk.repositories.BookRepository;
@@ -60,6 +61,10 @@ public class RatingService {
         RatingEntity entity = ratingMapper.toEntity(input, null);
         BookEntity book = findBookById(input.getBookId());
         UserEntity user = findUserById(input.getUserId());
+
+        if (ratingRepository.existsByBookAndUser(book, user)) {
+            throw new ConflictException("This user has already rated this book");
+        }
 
         entity.setBook(book);
         entity.setUser(user);
