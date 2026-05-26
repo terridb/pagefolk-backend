@@ -1,5 +1,6 @@
 package com.terridb.pagefolk.services;
 
+import com.terridb.pagefolk.dtos.book.BookPatchDto;
 import com.terridb.pagefolk.dtos.book.BookRequestDto;
 import com.terridb.pagefolk.dtos.book.BookResponseDto;
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
@@ -25,6 +26,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -227,18 +230,95 @@ class BookServiceTest {
     }
 
     @Test
-    void updateBook() {
+    void updateBook_appliesNonNullFieldChanges() {
+        BookPatchDto input = new BookPatchDto();
+        input.setTitle("The Hungergames");
+        input.setDescription("This is a test description");
+        input.setIsbn("9780261101017");
+        input.setSeriesOrder(BigDecimal.valueOf(1));
+        input.setReleaseDate(LocalDate.parse("2010-06-18"));
+
+        BookResponseDto updatedDto = new BookResponseDto();
+        updatedDto.setId(1L);
+        updatedDto.setTitle("The Hungergames");
+        updatedDto.setIsbn("9780261101017");
+        updatedDto.setSeriesOrder(BigDecimal.valueOf(1));
+        updatedDto.setReleaseDate(LocalDate.parse("2010-06-18"));
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(bookMapper.toDto(book)).thenReturn(updatedDto);
+
+        BookResponseDto result = bookService.updateBook(1L, input);
+
+        verify(bookRepository).save(book);
+        assertEquals("The Hungergames", book.getTitle());
+        assertEquals("This is a test description", book.getDescription());
+        assertEquals(LocalDate.parse("2010-06-18"), book.getReleaseDate());
+        assertEquals(BigDecimal.valueOf(1), book.getSeriesOrder());
+        assertEquals("9780261101017", book.getIsbn());
+        assertEquals("The Hungergames", result.getTitle());
     }
 
     @Test
     void softDeleteBook() {
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        bookService.softDeleteBook(1L);
+
+        verify(bookRepository).save(book);
+        assertEquals(LocalDate.now(), book.getDeletedDate());
+    }
+
+    @Test
+    void softDeleteBook_throwsConflictException() {
+        book.setDeletedDate(LocalDate.now());
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        assertThrows(ConflictException.class, () -> bookService.softDeleteBook(1L));
     }
 
     @Test
     void reviveBook() {
+        book.setDeletedDate(LocalDate.now());
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
+
+        bookService.reviveBook(1L);
+
+        verify(bookRepository).save(book);
+        assertNull(book.getDeletedDate());
+    }
+
+    @Test
+    void reviveBook_throwsConflictException() {
+        book.setDeletedDate(null);
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        assertThrows(ConflictException.class, () -> bookService.reviveBook(1L));
     }
 
     @Test
     void deleteBook() {
+        book.setDeletedDate(LocalDate.now());
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        bookService.deleteBook(1L);
+
+        verify(bookRepository).delete(book);
+    }
+
+    @Test
+    void deleteBook_throwsConflictException() {
+        book.setDeletedDate(null);
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        assertThrows(ConflictException.class, () -> bookService.deleteBook(1L));
     }
 }

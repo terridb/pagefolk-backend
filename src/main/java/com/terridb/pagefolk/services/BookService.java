@@ -147,6 +147,7 @@ public class BookService {
             existingEntity.setReleaseDate(input.getReleaseDate());
         }
 
+//        todo if book is not part of series, this should be null
         if (input.getSeriesOrder() != null) {
             existingEntity.setSeriesOrder(input.getSeriesOrder());
         }
