@@ -161,7 +161,7 @@ class BookServiceTest {
     }
 
     @Test
-    void getBookById_returnsBookById() {
+    void getBookById_returnsBook() {
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
         when(bookMapper.toDto(book)).thenReturn(bookDto);
 
@@ -171,7 +171,7 @@ class BookServiceTest {
     }
 
     @Test
-    void getBookById_returnsNotFound() {
+    void getBookById_throwsNotFoundException() {
         when(bookRepository.findById(100L)).thenReturn(Optional.empty());
 
         assertThrows(RecordNotFoundException.class, () -> bookService.getBookById(100L));
@@ -218,7 +218,7 @@ class BookServiceTest {
     }
 
     @Test
-    void postBook_throwsOnDuplicateIsbn() {
+    void postBook_duplicateIsbn_throwsConflictException() {
         BookRequestDto input = new BookRequestDto();
         input.setIsbn("9780261102217");
         input.setAuthorIds(Set.of(1L));
@@ -261,7 +261,7 @@ class BookServiceTest {
     }
 
     @Test
-    void softDeleteBook() {
+    void softDeleteBook_setsDeletedDate() {
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
 
         bookService.softDeleteBook(1L);
@@ -271,7 +271,7 @@ class BookServiceTest {
     }
 
     @Test
-    void softDeleteBook_throwsConflictException() {
+    void softDeleteBook_alreadyDeleted_throwsConflictException() {
         book.setDeletedDate(LocalDate.now());
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -280,7 +280,7 @@ class BookServiceTest {
     }
 
     @Test
-    void reviveBook() {
+    void reviveBook_clearsDeletedDate() {
         book.setDeletedDate(LocalDate.now());
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -294,7 +294,7 @@ class BookServiceTest {
     }
 
     @Test
-    void reviveBook_throwsConflictException() {
+    void reviveBook_notDeleted_throwsConflictException() {
         book.setDeletedDate(null);
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -303,7 +303,7 @@ class BookServiceTest {
     }
 
     @Test
-    void deleteBook() {
+    void deleteBook_deletesEntity() {
         book.setDeletedDate(LocalDate.now());
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -314,7 +314,7 @@ class BookServiceTest {
     }
 
     @Test
-    void deleteBook_throwsConflictException() {
+    void deleteBook_notSoftDeleted_throwsConflictException() {
         book.setDeletedDate(null);
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
