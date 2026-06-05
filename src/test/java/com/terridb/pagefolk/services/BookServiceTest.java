@@ -321,4 +321,133 @@ class BookServiceTest {
 
         assertThrows(ConflictException.class, () -> bookService.deleteBook(1L));
     }
+
+    @Test
+    void deleteBook_throwsNotFoundException() {
+        when(bookRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.deleteBook(100L));
+    }
+
+    @Test
+    void deleteBook_withSeries_removesFromSeries() {
+        BookSeriesEntity series = new BookSeriesEntity();
+        series.getBooks().add(book);
+        book.setSeries(series);
+        book.setDeletedDate(LocalDate.now());
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        bookService.deleteBook(1L);
+
+        verify(bookRepository).delete(book);
+        assertFalse(series.getBooks().contains(book));
+    }
+
+    @Test
+    void softDeleteBook_throwsNotFoundException() {
+        when(bookRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.softDeleteBook(100L));
+    }
+
+    @Test
+    void reviveBook_throwsNotFoundException() {
+        when(bookRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.reviveBook(100L));
+    }
+
+    @Test
+    void updateBook_throwsNotFoundException() {
+        when(bookRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.updateBook(100L, new BookPatchDto()));
+    }
+
+    @Test
+    void updateBook_skipsNullFields() {
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
+
+        bookService.updateBook(1L, new BookPatchDto());
+
+        assertEquals("The Hobbit", book.getTitle());
+        assertNull(book.getIsbn());
+        assertNull(book.getDescription());
+        assertNull(book.getReleaseDate());
+        assertNull(book.getSeriesOrder());
+    }
+
+    @Test
+    void updateBook_sameIsbn_skipsIsbnCheck() {
+        book.setIsbn("9780261102217");
+
+        BookPatchDto input = new BookPatchDto();
+        input.setIsbn("9780261102217");
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
+
+        assertDoesNotThrow(() -> bookService.updateBook(1L, input));
+        assertEquals("9780261102217", book.getIsbn());
+    }
+
+    @Test
+    void updateBook_duplicateIsbn_throwsConflictException() {
+        book.setIsbn("9780261102217");
+
+        BookPatchDto input = new BookPatchDto();
+        input.setIsbn("9780000000000");
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.existsByIsbn("9780000000000")).thenReturn(true);
+
+        assertThrows(ConflictException.class, () -> bookService.updateBook(1L, input));
+    }
+
+    @Test
+    void postBook_authorNotFound_throwsNotFoundException() {
+        BookRequestDto input = new BookRequestDto();
+        input.setIsbn("9780261102217");
+        input.setAuthorIds(Set.of(99L));
+        input.setGenreIds(Set.of(1L));
+
+        when(bookMapper.toEntity(input, null)).thenReturn(book);
+        when(authorRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.postBook(input));
+    }
+
+    @Test
+    void postBook_genreNotFound_throwsNotFoundException() {
+        BookRequestDto input = new BookRequestDto();
+        input.setIsbn("9780261102217");
+        input.setAuthorIds(Set.of(1L));
+        input.setGenreIds(Set.of(99L));
+
+        when(bookMapper.toEntity(input, null)).thenReturn(book);
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(new AuthorEntity()));
+        when(genreRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.postBook(input));
+    }
+
+    @Test
+    void postBook_seriesNotFound_throwsNotFoundException() {
+        BookRequestDto input = new BookRequestDto();
+        input.setIsbn("9780261102217");
+        input.setAuthorIds(Set.of(1L));
+        input.setGenreIds(Set.of(1L));
+        input.setSeriesId(99L);
+
+        when(bookMapper.toEntity(input, null)).thenReturn(book);
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(new AuthorEntity()));
+        when(genreRepository.findById(1L)).thenReturn(Optional.of(new GenreEntity()));
+        when(bookSeriesRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.postBook(input));
+    }
 }
