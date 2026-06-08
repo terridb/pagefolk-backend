@@ -2,8 +2,10 @@ package com.terridb.pagefolk.dtos.list;
 
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class ListUpdateDto {
     @Size(min = 1, max = 150, message = "Name must be between 1 and 150 characters")
     private String name;
