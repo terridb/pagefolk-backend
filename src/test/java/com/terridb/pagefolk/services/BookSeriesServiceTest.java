@@ -65,6 +65,8 @@ class BookSeriesServiceTest {
         paginatedResponse.setTotalElements(1);
     }
 
+    // getAllBookSeries
+
     @Test
     void getAllBookSeries_returnsPagedResults() {
         when(bookSeriesRepository.findAll(any(Pageable.class))).thenReturn(seriesPage);
@@ -107,6 +109,8 @@ class BookSeriesServiceTest {
         verify(bookSeriesRepository).findAll(PageRequest.of(0, 20));
     }
 
+    // getBookSeriesById
+
     @Test
     void getBookSeriesById_returnsSeries() {
         when(bookSeriesRepository.findById(1L)).thenReturn(Optional.of(series));
@@ -123,6 +127,8 @@ class BookSeriesServiceTest {
 
         assertThrows(RecordNotFoundException.class, () -> bookSeriesService.getBookSeriesById(100L));
     }
+
+    // postBookSeries
 
     @Test
     void postBookSeries_createsSeries() {
@@ -178,6 +184,8 @@ class BookSeriesServiceTest {
 
         assertThrows(ConflictException.class, () -> bookSeriesService.postBookSeries(input));
     }
+
+    // updateBookSeries
 
     @Test
     void updateBookSeries_throwsNotFoundException() {
@@ -266,6 +274,8 @@ class BookSeriesServiceTest {
         assertEquals(series, book1.getSeries());
         assertEquals(series, book2.getSeries());
     }
+
+    // deleteBookSeries
 
     @Test
     void deleteBookSeries_deletesEntity() {

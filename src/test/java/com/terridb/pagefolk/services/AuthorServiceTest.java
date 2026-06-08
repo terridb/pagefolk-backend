@@ -61,6 +61,8 @@ class AuthorServiceTest {
         paginatedResponse.setTotalElements(1);
     }
 
+    // getAllAuthors
+
     @Test
     void getAllAuthors_returnsPagedResults() {
         when(authorRepository.searchAuthorsWithParams(any(), any()))
@@ -114,6 +116,8 @@ class AuthorServiceTest {
         assertEquals(20, pageableCaptor.getValue().getPageSize());
     }
 
+    // getAuthorById
+
     @Test
     void getAuthorById_returnsAuthor() {
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
@@ -131,6 +135,8 @@ class AuthorServiceTest {
         assertThrows(RecordNotFoundException.class, () -> authorService.getAuthorById(100L));
     }
 
+    // postAuthor
+
     @Test
     void postAuthor_createsAuthor() {
         AuthorRequestDto input = new AuthorRequestDto();
@@ -145,6 +151,8 @@ class AuthorServiceTest {
         verify(authorRepository).save(author);
         assertEquals("John Doe", result.getFullName());
     }
+
+    // updateAuthor
 
     @Test
     void updateAuthor_updatesFullNameAndReturnsDto() {
@@ -171,6 +179,8 @@ class AuthorServiceTest {
         assertThrows(RecordNotFoundException.class, () -> authorService.updateAuthor(100L, input));
     }
 
+    // softDeleteAuthor
+
     @Test
     void softDeleteAuthor_setsDeletedDate() {
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
@@ -196,6 +206,8 @@ class AuthorServiceTest {
 
         assertThrows(RecordNotFoundException.class, () -> authorService.softDeleteAuthor(100L));
     }
+
+    // reviveAuthor
 
     @Test
     void reviveAuthor_clearsDeletedDate() {
@@ -226,6 +238,8 @@ class AuthorServiceTest {
 
         assertThrows(RecordNotFoundException.class, () -> authorService.reviveAuthor(100L));
     }
+
+    // deleteAuthor
 
     @Test
     void deleteAuthor_deletesEntity() {

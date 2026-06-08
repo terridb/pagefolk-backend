@@ -47,6 +47,8 @@ class GenreServiceTest {
         genreDto.setName("fantasy");
     }
 
+    // getAllGenres
+
     @Test
     void getAllGenres_returnsAllGenres() {
         when(genreRepository.findAll()).thenReturn(List.of(genre));
@@ -57,6 +59,8 @@ class GenreServiceTest {
         assertEquals(1, result.size());
         assertEquals("fantasy", result.getFirst().getName());
     }
+
+    // getGenreById
 
     @Test
     void getGenreById_returnsGenre() {
@@ -74,6 +78,8 @@ class GenreServiceTest {
 
         assertThrows(RecordNotFoundException.class, () -> genreService.getGenreById(99L));
     }
+
+    // postGenre
 
     @Test
     void postGenre_savesGenre() {
@@ -100,6 +106,8 @@ class GenreServiceTest {
 
         assertThrows(ConflictException.class, () -> genreService.postGenre(input));
     }
+
+    // updateGenre
 
     @Test
     void updateGenre_throwsNotFoundException() {
@@ -167,6 +175,8 @@ class GenreServiceTest {
         verify(genreRepository).save(genre);
         assertNull(genre.getDescription());
     }
+
+    // deleteGenre
 
     @Test
     void deleteGenre_throwsNotFoundException() {

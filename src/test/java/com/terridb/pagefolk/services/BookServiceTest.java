@@ -81,6 +81,8 @@ class BookServiceTest {
         paginatedResponse.setTotalElements(1);
     }
 
+    // getAllBooks
+
     @Test
     void getAllBooks_returnsPagedResults() {
         when(bookRepository.searchBooksWithFilters(any(), any(), any(), any(), any(), any(), any(), any()))
@@ -160,6 +162,8 @@ class BookServiceTest {
         assertNull(genresCaptor.getValue());
     }
 
+    // getBookById
+
     @Test
     void getBookById_returnsBook() {
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -176,6 +180,8 @@ class BookServiceTest {
 
         assertThrows(RecordNotFoundException.class, () -> bookService.getBookById(100L));
     }
+
+    // postBook
 
     @Test
     void postBook_createsBookWithoutSeries() {
@@ -229,6 +235,8 @@ class BookServiceTest {
         assertThrows(ConflictException.class, () -> bookService.postBook(input));
     }
 
+    // updateBook
+
     @Test
     void updateBook_appliesNonNullFieldChanges() {
         BookPatchDto input = new BookPatchDto();
@@ -260,6 +268,8 @@ class BookServiceTest {
         assertEquals("The Hungergames", result.getTitle());
     }
 
+    // softDeleteBook
+
     @Test
     void softDeleteBook_setsDeletedDate() {
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -278,6 +288,8 @@ class BookServiceTest {
 
         assertThrows(ConflictException.class, () -> bookService.softDeleteBook(1L));
     }
+
+    // reviveBook
 
     @Test
     void reviveBook_clearsDeletedDate() {
@@ -301,6 +313,8 @@ class BookServiceTest {
 
         assertThrows(ConflictException.class, () -> bookService.reviveBook(1L));
     }
+
+    // deleteBook
 
     @Test
     void deleteBook_deletesEntity() {
