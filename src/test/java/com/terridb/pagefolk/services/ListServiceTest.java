@@ -1,5 +1,6 @@
 package com.terridb.pagefolk.services;
 
+import com.terridb.pagefolk.dtos.book.BookSimpleResponseDto;
 import com.terridb.pagefolk.dtos.list.ListRequestDto;
 import com.terridb.pagefolk.dtos.list.ListResponseDto;
 import com.terridb.pagefolk.dtos.list.ListUpdateDto;
@@ -194,6 +195,25 @@ class ListServiceTest {
     // addBookToList
 
     @Test
+    void addBookToList_SavesBookToList() {
+        BookEntity book =  new BookEntity();
+        book.setId(1L);
+        BookSimpleResponseDto bookDto = new  BookSimpleResponseDto();
+        bookDto.setId(1L);
+        listDto.setBooks(List.of(bookDto));
+
+        when(listRepository.findById(1L)).thenReturn(Optional.of(list));
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(listRepository.save(list)).thenReturn(list);
+        when(listMapper.toDto(list)).thenReturn(listDto);
+
+        ListResponseDto result = listService.addBookToList(1L, 1L);
+
+        verify(listRepository).save(list);
+        assertTrue(result.getBooks().contains(bookDto));
+    }
+
+    @Test
     void addBookToList_listNotFound_throwsNotFoundException() {
         when(listRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -233,6 +253,21 @@ class ListServiceTest {
     }
 
     // removeBookFromList
+
+    @Test
+    void removeBookFromList_RemovesBookFromList() {
+        BookEntity book =  new BookEntity();
+        book.setId(1L);
+        list.getBooks().add(book);
+
+        when(listRepository.findById(1L)).thenReturn(Optional.of(list));
+        when(listRepository.save(list)).thenReturn(list);
+
+        listService.removeBookFromList(1L, 1L);
+
+        verify(listRepository).save(list);
+        assertFalse(list.getBooks().contains(book));
+    }
 
     @Test
     void removeBookFromList_listNotFound_throwsNotFoundException() {
