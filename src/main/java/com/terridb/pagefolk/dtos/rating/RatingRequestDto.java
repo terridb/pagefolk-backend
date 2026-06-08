@@ -2,9 +2,11 @@ package com.terridb.pagefolk.dtos.rating;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
+@Setter
 @Getter
 public class RatingRequestDto {
     @DecimalMin(value = "0.0", message = "Score must be between 0.0 and 5.0")
