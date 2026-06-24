@@ -55,6 +55,7 @@ public class SecurityConfig {
                 .build();
     }
 
+    @Bean
     public JwtDecoder jwtDecoder(){
         NimbusJwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(issuer);
 
