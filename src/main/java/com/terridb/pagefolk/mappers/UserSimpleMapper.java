@@ -11,8 +11,7 @@ public class UserSimpleMapper {
         var result = new UserSimpleResponseDto();
         result.setId(entity.getId().toString());
         result.setUsername(entity.getUsername());
-        result.setEmail(entity.getEmail());
-        result.setProfilePictureUrl(entity.getProfilePictureUrl());
+result.setProfilePictureUrl(entity.getProfilePictureUrl());
         return result;
     }
 }

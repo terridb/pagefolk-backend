@@ -8,6 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class UserDetailedResponseDto extends UserSimpleResponseDto {
+    private String email;
     private String bio;
     private List<Long> listIds;
 }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -26,8 +27,6 @@ import java.util.Map;
 public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuer;
-//    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
-//    private String jwkSetUri;
     @Value("${spring.security.oauth2.resourceserver.jwt.audiences}")
     private String audience;
     @Value("${client-id}")
@@ -46,17 +45,22 @@ public class SecurityConfig {
                                 .decoder(jwtDecoder())
                         ))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/publicInfo").permitAll()
-                        //requestmatchers voor andere endpoints
-//                        .anyRequest().authenticated()
-                                .anyRequest().permitAll()
+                                .requestMatchers(HttpMethod.GET,
+                                        "/authors/**",
+                                        "/books/**",
+                                        "/series/**",
+                                        "/genres/**",
+                                        "/ratings/book/*"
+                                ).permitAll()
+
+                                .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(){
+    public JwtDecoder jwtDecoder() {
         NimbusJwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(issuer);
 
         OAuth2TokenValidator<Jwt> audienceValidator = new JwtAudienceValidator(audience);
@@ -78,7 +82,8 @@ public class SecurityConfig {
                 }
                 return grantedAuthorities;
             }
-            private List<String> getAuthorities(Jwt jwt){
+
+            private List<String> getAuthorities(Jwt jwt) {
                 Map<String, Object> resourceAcces = jwt.getClaim("resource_access");
                 if (resourceAcces != null) {
                     if (resourceAcces.get(clientId) instanceof Map) {

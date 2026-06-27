@@ -74,7 +74,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-@GetMapping
+    @GetMapping
     public ResponseEntity<PaginatedResponse<UserSimpleResponseDto>> getAllUsers(UserFilterDto filter) {
         return ResponseEntity.ok(userService.getAllUsers(filter));
     }
