@@ -2,12 +2,14 @@ package com.terridb.pagefolk.dtos.book;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
 @Getter
+@Setter
 public class BookRequestDto {
     @Size(message = "Title must be between 1 and 150 characters", min = 1, max = 150)
     @NotBlank(message = "Title is required")

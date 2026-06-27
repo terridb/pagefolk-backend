@@ -1,0 +1,467 @@
+package com.terridb.pagefolk.services;
+
+import com.terridb.pagefolk.dtos.book.BookPatchDto;
+import com.terridb.pagefolk.dtos.book.BookRequestDto;
+import com.terridb.pagefolk.dtos.book.BookResponseDto;
+import com.terridb.pagefolk.dtos.common.PaginatedResponse;
+import com.terridb.pagefolk.entities.AuthorEntity;
+import com.terridb.pagefolk.entities.BookEntity;
+import com.terridb.pagefolk.entities.BookSeriesEntity;
+import com.terridb.pagefolk.entities.GenreEntity;
+import com.terridb.pagefolk.exceptions.ConflictException;
+import com.terridb.pagefolk.exceptions.RecordNotFoundException;
+import com.terridb.pagefolk.mappers.BookMapper;
+import com.terridb.pagefolk.repositories.AuthorRepository;
+import com.terridb.pagefolk.repositories.BookRepository;
+import com.terridb.pagefolk.repositories.BookSeriesRepository;
+import com.terridb.pagefolk.repositories.GenreRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class BookServiceTest {
+
+    @Mock
+    BookRepository bookRepository;
+
+    @Mock
+    BookMapper bookMapper;
+
+    @Mock
+    AuthorRepository authorRepository;
+
+    @Mock
+    GenreRepository genreRepository;
+
+    @Mock
+    BookSeriesRepository bookSeriesRepository;
+
+    @InjectMocks
+    BookService bookService;
+
+    BookEntity book;
+    BookResponseDto bookDto;
+    Page<BookEntity> booksPage;
+    PaginatedResponse<BookResponseDto> paginatedResponse;
+
+    @BeforeEach
+    void setUp() {
+        book = new BookEntity();
+        book.setId(1L);
+        book.setTitle("The Hobbit");
+
+        bookDto = new BookResponseDto();
+        bookDto.setId(1L);
+        bookDto.setTitle("The Hobbit");
+
+        booksPage = new PageImpl<>(List.of(book));
+
+        paginatedResponse = new PaginatedResponse<>();
+        paginatedResponse.setContent(List.of(bookDto));
+        paginatedResponse.setTotalElements(1);
+    }
+
+    // getAllBooks
+
+    @Test
+    void getAllBooks_returnsPagedResults() {
+        when(bookRepository.searchBooksWithFilters(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(booksPage);
+        when(bookMapper.toPaginatedDto(booksPage)).thenReturn(paginatedResponse);
+
+        PaginatedResponse<BookResponseDto> result = bookService.getAllBooks(
+                null, 0, 20, "title", "ASC", null, null, null, null, null, null);
+
+        assertEquals(1, result.getContent().size());
+        assertEquals("The Hobbit", result.getContent().getFirst().getTitle());
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void getAllBooks_negativePage_clampsToZero() {
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        when(bookRepository.searchBooksWithFilters(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(booksPage);
+        when(bookMapper.toPaginatedDto(any())).thenReturn(paginatedResponse);
+
+        bookService.getAllBooks(null, -5, 20, "title", "ASC", null, null, null, null, null, null);
+
+        verify(bookRepository).searchBooksWithFilters(any(), any(), any(), any(), any(), any(), any(), pageableCaptor.capture());
+        assertEquals(0, pageableCaptor.getValue().getPageNumber());
+    }
+
+    @Test
+    void getAllBooks_sizeZero_defaultsTo20() {
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        when(bookRepository.searchBooksWithFilters(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(booksPage);
+        when(bookMapper.toPaginatedDto(any())).thenReturn(paginatedResponse);
+
+        bookService.getAllBooks(null, 0, 0, "title", "ASC", null, null, null, null, null, null);
+
+        verify(bookRepository).searchBooksWithFilters(any(), any(), any(), any(), any(), any(), any(), pageableCaptor.capture());
+        assertEquals(20, pageableCaptor.getValue().getPageSize());
+    }
+
+    @Test
+    void getAllBooks_sizeOverMax_defaultsTo20() {
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        when(bookRepository.searchBooksWithFilters(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(booksPage);
+        when(bookMapper.toPaginatedDto(any())).thenReturn(paginatedResponse);
+
+        bookService.getAllBooks(null, 0, 101, "title", "ASC", null, null, null, null, null, null);
+
+        verify(bookRepository).searchBooksWithFilters(any(), any(), any(), any(), any(), any(), any(), pageableCaptor.capture());
+        assertEquals(20, pageableCaptor.getValue().getPageSize());
+    }
+
+    @Test
+    void getAllBooks_lowercasesGenres() {
+        ArgumentCaptor<List<String>> genresCaptor = ArgumentCaptor.captor();
+        when(bookRepository.searchBooksWithFilters(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(booksPage);
+        when(bookMapper.toPaginatedDto(any())).thenReturn(paginatedResponse);
+
+        bookService.getAllBooks(null, 0, 20, "title", "ASC", List.of("Fantasy", "HORROR"), null, null, null, null, null);
+
+        verify(bookRepository).searchBooksWithFilters(any(), any(), genresCaptor.capture(), any(), any(), any(), any(), any());
+        assertEquals(new HashSet<>(List.of("fantasy", "horror")), new HashSet<>(genresCaptor.getValue()));
+    }
+
+    @Test
+    void getAllBooks_nullGenres_passesNullToRepository() {
+        ArgumentCaptor<List<String>> genresCaptor = ArgumentCaptor.captor();
+        when(bookRepository.searchBooksWithFilters(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(booksPage);
+        when(bookMapper.toPaginatedDto(any())).thenReturn(paginatedResponse);
+
+        bookService.getAllBooks(null, 0, 20, "title", "ASC", null, null, null, null, null, null);
+
+        verify(bookRepository).searchBooksWithFilters(any(), any(), genresCaptor.capture(), any(), any(), any(), any(), any());
+        assertNull(genresCaptor.getValue());
+    }
+
+    // getBookById
+
+    @Test
+    void getBookById_returnsBook() {
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
+
+        BookResponseDto result = bookService.getBookById(1L);
+
+        assertEquals("The Hobbit", result.getTitle());
+    }
+
+    @Test
+    void getBookById_throwsNotFoundException() {
+        when(bookRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.getBookById(100L));
+    }
+
+    // postBook
+
+    @Test
+    void postBook_createsBookWithoutSeries() {
+        BookRequestDto input = new BookRequestDto();
+        input.setIsbn("9780261102217");
+        input.setAuthorIds(Set.of(1L));
+        input.setGenreIds(Set.of(1L));
+
+        when(bookMapper.toEntity(input, null)).thenReturn(book);
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(new AuthorEntity()));
+        when(genreRepository.findById(1L)).thenReturn(Optional.of(new GenreEntity()));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
+
+        BookResponseDto result = bookService.postBook(input);
+
+        verify(bookRepository).save(book);
+        assertEquals("The Hobbit", result.getTitle());
+    }
+
+    @Test
+    void postBook_createsBookWithSeries() {
+        BookRequestDto input = new BookRequestDto();
+        input.setIsbn("9780261102217");
+        input.setAuthorIds(Set.of(1L));
+        input.setGenreIds(Set.of(1L));
+        input.setSeriesId(1L);
+
+        when(bookMapper.toEntity(input, null)).thenReturn(book);
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(new AuthorEntity()));
+        when(genreRepository.findById(1L)).thenReturn(Optional.of(new GenreEntity()));
+        when(bookSeriesRepository.findById(1L)).thenReturn(Optional.of(new BookSeriesEntity()));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
+
+        BookResponseDto result = bookService.postBook(input);
+
+        verify(bookRepository).save(book);
+        assertEquals("The Hobbit", result.getTitle());
+    }
+
+    @Test
+    void postBook_duplicateIsbn_throwsConflictException() {
+        BookRequestDto input = new BookRequestDto();
+        input.setIsbn("9780261102217");
+        input.setAuthorIds(Set.of(1L));
+        input.setGenreIds(Set.of(1L));
+
+        when(bookRepository.existsByIsbn("9780261102217")).thenReturn(true);
+
+        assertThrows(ConflictException.class, () -> bookService.postBook(input));
+    }
+
+    // updateBook
+
+    @Test
+    void updateBook_appliesNonNullFieldChanges() {
+        BookPatchDto input = new BookPatchDto();
+        input.setTitle("The Hungergames");
+        input.setDescription("This is a test description");
+        input.setIsbn("9780261101017");
+        input.setSeriesOrder(BigDecimal.valueOf(1));
+        input.setReleaseDate(LocalDate.parse("2010-06-18"));
+
+        BookResponseDto updatedDto = new BookResponseDto();
+        updatedDto.setId(1L);
+        updatedDto.setTitle("The Hungergames");
+        updatedDto.setIsbn("9780261101017");
+        updatedDto.setSeriesOrder(BigDecimal.valueOf(1));
+        updatedDto.setReleaseDate(LocalDate.parse("2010-06-18"));
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(bookMapper.toDto(book)).thenReturn(updatedDto);
+
+        BookResponseDto result = bookService.updateBook(1L, input);
+
+        verify(bookRepository).save(book);
+        assertEquals("The Hungergames", book.getTitle());
+        assertEquals("This is a test description", book.getDescription());
+        assertEquals(LocalDate.parse("2010-06-18"), book.getReleaseDate());
+        assertEquals(BigDecimal.valueOf(1), book.getSeriesOrder());
+        assertEquals("9780261101017", book.getIsbn());
+        assertEquals("The Hungergames", result.getTitle());
+    }
+
+    // softDeleteBook
+
+    @Test
+    void softDeleteBook_setsDeletedDate() {
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        bookService.softDeleteBook(1L);
+
+        verify(bookRepository).save(book);
+        assertEquals(LocalDate.now(), book.getDeletedDate());
+    }
+
+    @Test
+    void softDeleteBook_alreadyDeleted_throwsConflictException() {
+        book.setDeletedDate(LocalDate.now());
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        assertThrows(ConflictException.class, () -> bookService.softDeleteBook(1L));
+    }
+
+    // reviveBook
+
+    @Test
+    void reviveBook_clearsDeletedDate() {
+        book.setDeletedDate(LocalDate.now());
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
+
+        bookService.reviveBook(1L);
+
+        verify(bookRepository).save(book);
+        assertNull(book.getDeletedDate());
+    }
+
+    @Test
+    void reviveBook_notDeleted_throwsConflictException() {
+        book.setDeletedDate(null);
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        assertThrows(ConflictException.class, () -> bookService.reviveBook(1L));
+    }
+
+    // deleteBook
+
+    @Test
+    void deleteBook_deletesEntity() {
+        book.setDeletedDate(LocalDate.now());
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        bookService.deleteBook(1L);
+
+        verify(bookRepository).delete(book);
+    }
+
+    @Test
+    void deleteBook_notSoftDeleted_throwsConflictException() {
+        book.setDeletedDate(null);
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        assertThrows(ConflictException.class, () -> bookService.deleteBook(1L));
+    }
+
+    @Test
+    void deleteBook_throwsNotFoundException() {
+        when(bookRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.deleteBook(100L));
+    }
+
+    @Test
+    void deleteBook_withSeries_removesFromSeries() {
+        BookSeriesEntity series = new BookSeriesEntity();
+        series.getBooks().add(book);
+        book.setSeries(series);
+        book.setDeletedDate(LocalDate.now());
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        bookService.deleteBook(1L);
+
+        verify(bookRepository).delete(book);
+        assertFalse(series.getBooks().contains(book));
+    }
+
+    @Test
+    void softDeleteBook_throwsNotFoundException() {
+        when(bookRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.softDeleteBook(100L));
+    }
+
+    @Test
+    void reviveBook_throwsNotFoundException() {
+        when(bookRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.reviveBook(100L));
+    }
+
+    @Test
+    void updateBook_throwsNotFoundException() {
+        when(bookRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.updateBook(100L, new BookPatchDto()));
+    }
+
+    @Test
+    void updateBook_skipsNullFields() {
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
+
+        bookService.updateBook(1L, new BookPatchDto());
+
+        assertEquals("The Hobbit", book.getTitle());
+        assertNull(book.getIsbn());
+        assertNull(book.getDescription());
+        assertNull(book.getReleaseDate());
+        assertNull(book.getSeriesOrder());
+    }
+
+    @Test
+    void updateBook_sameIsbn_skipsIsbnCheck() {
+        book.setIsbn("9780261102217");
+
+        BookPatchDto input = new BookPatchDto();
+        input.setIsbn("9780261102217");
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
+
+        assertDoesNotThrow(() -> bookService.updateBook(1L, input));
+        assertEquals("9780261102217", book.getIsbn());
+    }
+
+    @Test
+    void updateBook_duplicateIsbn_throwsConflictException() {
+        book.setIsbn("9780261102217");
+
+        BookPatchDto input = new BookPatchDto();
+        input.setIsbn("9780000000000");
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.existsByIsbn("9780000000000")).thenReturn(true);
+
+        assertThrows(ConflictException.class, () -> bookService.updateBook(1L, input));
+    }
+
+    @Test
+    void postBook_authorNotFound_throwsNotFoundException() {
+        BookRequestDto input = new BookRequestDto();
+        input.setIsbn("9780261102217");
+        input.setAuthorIds(Set.of(99L));
+        input.setGenreIds(Set.of(1L));
+
+        when(bookMapper.toEntity(input, null)).thenReturn(book);
+        when(authorRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.postBook(input));
+    }
+
+    @Test
+    void postBook_genreNotFound_throwsNotFoundException() {
+        BookRequestDto input = new BookRequestDto();
+        input.setIsbn("9780261102217");
+        input.setAuthorIds(Set.of(1L));
+        input.setGenreIds(Set.of(99L));
+
+        when(bookMapper.toEntity(input, null)).thenReturn(book);
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(new AuthorEntity()));
+        when(genreRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.postBook(input));
+    }
+
+    @Test
+    void postBook_seriesNotFound_throwsNotFoundException() {
+        BookRequestDto input = new BookRequestDto();
+        input.setIsbn("9780261102217");
+        input.setAuthorIds(Set.of(1L));
+        input.setGenreIds(Set.of(1L));
+        input.setSeriesId(99L);
+
+        when(bookMapper.toEntity(input, null)).thenReturn(book);
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(new AuthorEntity()));
+        when(genreRepository.findById(1L)).thenReturn(Optional.of(new GenreEntity()));
+        when(bookSeriesRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> bookService.postBook(input));
+    }
+}

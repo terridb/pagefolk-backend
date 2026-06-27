@@ -4,7 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 public class ListRequestDto {
     @Size(message = "Name must be between 1 and 150 characters", min = 1, max = 150)

@@ -3,9 +3,11 @@ package com.terridb.pagefolk.dtos.bookseries;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 
+@Setter
 @Getter
 public class BookSeriesRequestDto {
     @Size(message = "Title must be between 1 and 150 characters", min = 1, max = 150)
