@@ -27,8 +27,6 @@ import java.util.Map;
 public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuer;
-    //    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
-//    private String jwkSetUri;
     @Value("${spring.security.oauth2.resourceserver.jwt.audiences}")
     private String audience;
     @Value("${client-id}")
