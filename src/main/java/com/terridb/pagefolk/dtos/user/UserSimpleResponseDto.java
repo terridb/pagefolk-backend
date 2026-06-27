@@ -8,6 +8,5 @@ import lombok.Setter;
 public class UserSimpleResponseDto {
     private String id;
     private String username;
-    private String email;
     private String profilePictureUrl;
 }
