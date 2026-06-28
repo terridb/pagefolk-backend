@@ -1,0 +1,41 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: [ "8080:8080" ]
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - CLIENT_ID=${CLIENT_ID}
+      - ISSUER_URI=http://keycloak:8080/realms/Pagefolk
+      - AUDIENCE=${AUDIENCE}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+    depends_on:
+      - database
+      - keycloak
+  database:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.6.1
+    ports:
+      - "9090:8080"
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=${KEYCLOAK_ADMIN}
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    command: start-dev --import-realm
+
+volumes:
+  pgdata:
