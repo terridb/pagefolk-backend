@@ -8,7 +8,7 @@ updates:
       time: "03:00"
     open-pull-requests-limit: 5
     reviewers:
-      -"terridb"
+      - "terridb"
     commit-message:
       prefix: "chore(deps):"
       include: "scope"
