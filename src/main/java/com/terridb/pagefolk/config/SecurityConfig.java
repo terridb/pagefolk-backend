@@ -52,7 +52,8 @@ public class SecurityConfig {
                                         "/books/**",
                                         "/series/**",
                                         "/genres/**",
-                                        "/ratings/book/*"
+                                        "/ratings/book/*",
+                                        "/actuator/health"
                                 ).permitAll()
 
                                 .anyRequest().authenticated()
