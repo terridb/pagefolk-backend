@@ -16,10 +16,14 @@ jobs:
 
       - name: Smoke test
         run: |
-          sleep 30
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.RENDER_APP_URL }}/actuator/health)
-          if [ "$STATUS" != "200" ]; then
-            echo "Health check failed with status $STATUS"
-            exit 1
-          fi
-          echo "Deploy successful!"
+          for i in $(seq 1 10); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.RENDER_APP_URL }}/actuator/health)
+            if [ "$STATUS" == "200" ]; then
+              echo "Deploy successful!"
+              exit 0
+            fi
+            echo "Attempt $i: status $STATUS, retrying in 15s..."
+            sleep 15
+          done
+          echo "Health check failed after multiple attempts"
+          exit 1
