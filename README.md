@@ -1,3 +1,6 @@
+[![CI](https://github.com/terridb/pagefolk-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/terridb/pagefolk-backend/actions/workflows/ci.yml)
+[![CD](https://github.com/terridb/pagefolk-backend/actions/workflows/cd.yml/badge.svg)](https://github.com/terridb/pagefolk-backend/actions/workflows/cd.yml)
+
 # Pagefolk-backend
 
 A book management REST API built with Spring Boot 4 and Java 25. Supports browsing books, authors, genres, and series; user ratings and reading lists; and role-based access control via Keycloak.
