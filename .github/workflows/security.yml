@@ -1,0 +1,20 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Run Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ github.repository }}:latest
+          severity: 'CRITICAL'
+          exit-code: '1'
+          format: 'table'
