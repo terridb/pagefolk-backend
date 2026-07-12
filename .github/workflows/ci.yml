@@ -21,6 +21,7 @@ jobs:
   unit-test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -30,6 +31,8 @@ jobs:
           distribution: 'temurin'
           java-version: '25'
           cache: 'maven'
+      - name: Run linter
+        run: mvn checkstyle:check
       - name: Run unit tests
         run: mvn test -Dfailsafe.skip=true
 
