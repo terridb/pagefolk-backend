@@ -13,6 +13,8 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<BookEntity, Long> {
     boolean existsByIsbn(String isbn);
 
+    Page<BookEntity> findAllByAuthors_IdAndDeletedDateIsNull(Long authorId, Pageable pageable);
+
     @Query("""
         SELECT DISTINCT b FROM BookEntity b
         LEFT JOIN b.authors a

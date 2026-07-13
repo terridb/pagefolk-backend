@@ -2,7 +2,10 @@ package com.terridb.pagefolk.controllers;
 
 import com.terridb.pagefolk.dtos.author.AuthorRequestDto;
 import com.terridb.pagefolk.entities.AuthorEntity;
+import com.terridb.pagefolk.entities.BookEntity;
 import com.terridb.pagefolk.repositories.AuthorRepository;
+import com.terridb.pagefolk.repositories.BookRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +35,15 @@ class AuthorControllerIT {
     @Autowired
     AuthorRepository authorRepository;
     @Autowired
+    BookRepository bookRepository;
+    @Autowired
     ObjectMapper objectMapper;
     @MockitoBean
     JwtDecoder jwtDecoder;
 
     AuthorEntity emily;
     AuthorEntity deletedEmily;
+    BookEntity book;
 
     @BeforeEach
     void setUp() {
@@ -49,6 +55,17 @@ class AuthorControllerIT {
         deletedEmily.setFullName("Deleted Author");
         deletedEmily.setDeletedDate(LocalDate.now());
         deletedEmily = authorRepository.save(deletedEmily);
+
+        book = new BookEntity();
+        book.setTitle("Beach Read");
+        book.setIsbn("1111111111111");
+        book.getAuthors().add(emily);
+        book = bookRepository.save(book);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (bookRepository.existsById(book.getId())) bookRepository.deleteById(book.getId());
     }
 
     @Test
@@ -68,6 +85,19 @@ class AuthorControllerIT {
     @Test
     void getAuthorById_notFound_returns404() throws Exception {
         mockMvc.perform(get("/authors/99999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getBooksByAuthorId_returns200WithContent() throws Exception {
+        mockMvc.perform(get("/authors/" + emily.getId() + "/books"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].title").value("Beach Read"));
+    }
+
+    @Test
+    void getBooksByAuthorId_notFound_returns404() throws Exception {
+        mockMvc.perform(get("/authors/99999/books"))
                 .andExpect(status().isNotFound());
     }
 
