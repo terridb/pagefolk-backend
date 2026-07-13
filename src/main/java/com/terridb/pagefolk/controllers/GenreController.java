@@ -1,5 +1,7 @@
 package com.terridb.pagefolk.controllers;
 
+import com.terridb.pagefolk.dtos.book.BookResponseDto;
+import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.dtos.genre.GenreRequestDto;
 import com.terridb.pagefolk.dtos.genre.GenreResponseDto;
 import com.terridb.pagefolk.services.GenreService;
@@ -29,6 +31,15 @@ public class GenreController {
     @GetMapping("/{id}")
     public ResponseEntity<GenreResponseDto> getGenreById(@PathVariable Long id) {
         return ResponseEntity.ok(genreService.getGenreById(id));
+    }
+
+    @GetMapping("/{id}/books")
+    public ResponseEntity<PaginatedResponse<BookResponseDto>> getBooksByGenreId(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return ResponseEntity.ok(genreService.getBooksByGenreId(id, page, size));
     }
 
     @PostMapping

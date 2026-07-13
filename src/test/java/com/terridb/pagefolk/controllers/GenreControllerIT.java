@@ -1,8 +1,11 @@
 package com.terridb.pagefolk.controllers;
 
 import com.terridb.pagefolk.dtos.genre.GenreRequestDto;
+import com.terridb.pagefolk.entities.BookEntity;
 import com.terridb.pagefolk.entities.GenreEntity;
+import com.terridb.pagefolk.repositories.BookRepository;
 import com.terridb.pagefolk.repositories.GenreRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,17 +33,31 @@ class GenreControllerIT {
     @Autowired
     GenreRepository genreRepository;
     @Autowired
+    BookRepository bookRepository;
+    @Autowired
     ObjectMapper objectMapper;
     @MockitoBean
     JwtDecoder jwtDecoder;
 
     GenreEntity fantasy;
+    BookEntity book;
 
     @BeforeEach
     void setUp() {
         fantasy = new GenreEntity();
         fantasy.setName("fantasy");
         fantasy = genreRepository.save(fantasy);
+
+        book = new BookEntity();
+        book.setTitle("Fourth Wing");
+        book.setIsbn("2222222222222");
+        book.getGenres().add(fantasy);
+        book = bookRepository.save(book);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (bookRepository.existsById(book.getId())) bookRepository.deleteById(book.getId());
     }
 
     @Test
@@ -60,6 +77,19 @@ class GenreControllerIT {
     @Test
     void getGenreById_notFound_returns404() throws Exception {
         mockMvc.perform(get("/genres/99999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getBooksByGenreId_returns200WithContent() throws Exception {
+        mockMvc.perform(get("/genres/" + fantasy.getId() + "/books"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].title").value("Fourth Wing"));
+    }
+
+    @Test
+    void getBooksByGenreId_notFound_returns404() throws Exception {
+        mockMvc.perform(get("/genres/99999/books"))
                 .andExpect(status().isNotFound());
     }
 
