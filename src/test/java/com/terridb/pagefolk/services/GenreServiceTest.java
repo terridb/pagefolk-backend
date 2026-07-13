@@ -1,12 +1,16 @@
 package com.terridb.pagefolk.services;
 
+import com.terridb.pagefolk.dtos.book.BookResponseDto;
+import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.dtos.genre.GenreRequestDto;
 import com.terridb.pagefolk.dtos.genre.GenreResponseDto;
 import com.terridb.pagefolk.entities.BookEntity;
 import com.terridb.pagefolk.entities.GenreEntity;
 import com.terridb.pagefolk.exceptions.ConflictException;
 import com.terridb.pagefolk.exceptions.RecordNotFoundException;
+import com.terridb.pagefolk.mappers.BookMapper;
 import com.terridb.pagefolk.mappers.GenreMapper;
+import com.terridb.pagefolk.repositories.BookRepository;
 import com.terridb.pagefolk.repositories.GenreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,11 +18,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,6 +36,10 @@ class GenreServiceTest {
     private GenreRepository genreRepository;
     @Mock
     private GenreMapper genreMapper;
+    @Mock
+    private BookRepository bookRepository;
+    @Mock
+    private BookMapper bookMapper;
 
     @InjectMocks
     private GenreService genreService;
@@ -77,6 +88,64 @@ class GenreServiceTest {
         when(genreRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(RecordNotFoundException.class, () -> genreService.getGenreById(99L));
+    }
+
+    // getBooksByGenreId
+
+    @Test
+    void getBooksByGenreId_returnsPagedResults() {
+        BookEntity book = new BookEntity();
+        book.setId(1L);
+        book.setTitle("Fourth Wing");
+        var bookPage = new PageImpl<>(List.of(book));
+
+        BookResponseDto bookDto = new BookResponseDto();
+        bookDto.setId(1L);
+        bookDto.setTitle("Fourth Wing");
+        PaginatedResponse<BookResponseDto> bookResponse = new PaginatedResponse<>();
+        bookResponse.setContent(List.of(bookDto));
+        bookResponse.setTotalElements(1);
+
+        when(genreRepository.existsById(1L)).thenReturn(true);
+        when(bookRepository.findAllByGenres_IdAndDeletedDateIsNull(any(), any())).thenReturn(bookPage);
+        when(bookMapper.toPaginatedDto(bookPage)).thenReturn(bookResponse);
+
+        PaginatedResponse<BookResponseDto> result = genreService.getBooksByGenreId(1L, 0, 20);
+
+        verify(bookRepository).findAllByGenres_IdAndDeletedDateIsNull(any(), any());
+        assertEquals(1, result.getContent().size());
+        assertEquals("Fourth Wing", result.getContent().getFirst().getTitle());
+    }
+
+    @Test
+    void getBooksByGenreId_genreNotFound_throwsNotFoundException() {
+        when(genreRepository.existsById(100L)).thenReturn(false);
+
+        assertThrows(RecordNotFoundException.class, () -> genreService.getBooksByGenreId(100L, 0, 20));
+    }
+
+    @Test
+    void getBooksByGenreId_negativePage_clampsToZero() {
+        when(genreRepository.existsById(1L)).thenReturn(true);
+        when(bookRepository.findAllByGenres_IdAndDeletedDateIsNull(any(), argThat(p -> p.getPageNumber() == 0)))
+                .thenReturn(new PageImpl<>(List.of()));
+        when(bookMapper.toPaginatedDto(any())).thenReturn(new PaginatedResponse<>());
+
+        genreService.getBooksByGenreId(1L, -1, 20);
+
+        verify(bookRepository).findAllByGenres_IdAndDeletedDateIsNull(any(), argThat(p -> p.getPageNumber() == 0));
+    }
+
+    @Test
+    void getBooksByGenreId_sizeOverMax_defaultsTo20() {
+        when(genreRepository.existsById(1L)).thenReturn(true);
+        when(bookRepository.findAllByGenres_IdAndDeletedDateIsNull(any(), argThat(p -> p.getPageSize() == 20)))
+                .thenReturn(new PageImpl<>(List.of()));
+        when(bookMapper.toPaginatedDto(any())).thenReturn(new PaginatedResponse<>());
+
+        genreService.getBooksByGenreId(1L, 0, 101);
+
+        verify(bookRepository).findAllByGenres_IdAndDeletedDateIsNull(any(), argThat(p -> p.getPageSize() == 20));
     }
 
     // postGenre
