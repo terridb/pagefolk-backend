@@ -2,12 +2,16 @@ package com.terridb.pagefolk.services;
 
 import com.terridb.pagefolk.dtos.author.AuthorRequestDto;
 import com.terridb.pagefolk.dtos.author.AuthorResponseDto;
+import com.terridb.pagefolk.dtos.book.BookResponseDto;
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.entities.AuthorEntity;
+import com.terridb.pagefolk.entities.BookEntity;
 import com.terridb.pagefolk.exceptions.ConflictException;
 import com.terridb.pagefolk.exceptions.RecordNotFoundException;
 import com.terridb.pagefolk.mappers.AuthorMapper;
+import com.terridb.pagefolk.mappers.BookMapper;
 import com.terridb.pagefolk.repositories.AuthorRepository;
+import com.terridb.pagefolk.repositories.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +39,12 @@ class AuthorServiceTest {
 
     @Mock
     private AuthorMapper authorMapper;
+
+    @Mock
+    private BookRepository bookRepository;
+
+    @Mock
+    private BookMapper bookMapper;
 
     @InjectMocks
     private AuthorService authorService;
@@ -133,6 +143,66 @@ class AuthorServiceTest {
         when(authorRepository.findById(100L)).thenReturn(Optional.empty());
 
         assertThrows(RecordNotFoundException.class, () -> authorService.getAuthorById(100L));
+    }
+
+    // getBooksByAuthorId
+
+    @Test
+    void getBooksByAuthorId_returnsPagedResults() {
+        BookEntity book = new BookEntity();
+        book.setId(1L);
+        book.setTitle("Beach Read");
+        Page<BookEntity> bookPage = new PageImpl<>(List.of(book));
+
+        BookResponseDto bookDto = new BookResponseDto();
+        bookDto.setId(1L);
+        bookDto.setTitle("Beach Read");
+        PaginatedResponse<BookResponseDto> bookResponse = new PaginatedResponse<>();
+        bookResponse.setContent(List.of(bookDto));
+        bookResponse.setTotalElements(1);
+
+        when(authorRepository.existsById(1L)).thenReturn(true);
+        when(bookRepository.findAllByAuthors_IdAndDeletedDateIsNull(any(), any())).thenReturn(bookPage);
+        when(bookMapper.toPaginatedDto(bookPage)).thenReturn(bookResponse);
+
+        PaginatedResponse<BookResponseDto> result = authorService.getBooksByAuthorId(1L, 0, 20);
+
+        verify(bookRepository).findAllByAuthors_IdAndDeletedDateIsNull(any(), any());
+        assertEquals(1, result.getContent().size());
+        assertEquals("Beach Read", result.getContent().getFirst().getTitle());
+    }
+
+    @Test
+    void getBooksByAuthorId_authorNotFound_throwsNotFoundException() {
+        when(authorRepository.existsById(100L)).thenReturn(false);
+
+        assertThrows(RecordNotFoundException.class, () -> authorService.getBooksByAuthorId(100L, 0, 20));
+    }
+
+    @Test
+    void getBooksByAuthorId_negativePage_clampsToZero() {
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        when(authorRepository.existsById(1L)).thenReturn(true);
+        when(bookRepository.findAllByAuthors_IdAndDeletedDateIsNull(any(), any())).thenReturn(new PageImpl<>(List.of()));
+        when(bookMapper.toPaginatedDto(any())).thenReturn(new PaginatedResponse<>());
+
+        authorService.getBooksByAuthorId(1L, -1, 20);
+
+        verify(bookRepository).findAllByAuthors_IdAndDeletedDateIsNull(any(), pageableCaptor.capture());
+        assertEquals(0, pageableCaptor.getValue().getPageNumber());
+    }
+
+    @Test
+    void getBooksByAuthorId_sizeOverMax_defaultsTo20() {
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        when(authorRepository.existsById(1L)).thenReturn(true);
+        when(bookRepository.findAllByAuthors_IdAndDeletedDateIsNull(any(), any())).thenReturn(new PageImpl<>(List.of()));
+        when(bookMapper.toPaginatedDto(any())).thenReturn(new PaginatedResponse<>());
+
+        authorService.getBooksByAuthorId(1L, 0, 101);
+
+        verify(bookRepository).findAllByAuthors_IdAndDeletedDateIsNull(any(), pageableCaptor.capture());
+        assertEquals(20, pageableCaptor.getValue().getPageSize());
     }
 
     // postAuthor

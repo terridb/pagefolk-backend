@@ -2,12 +2,16 @@ package com.terridb.pagefolk.services;
 
 import com.terridb.pagefolk.dtos.author.AuthorRequestDto;
 import com.terridb.pagefolk.dtos.author.AuthorResponseDto;
+import com.terridb.pagefolk.dtos.book.BookResponseDto;
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.entities.AuthorEntity;
+import com.terridb.pagefolk.entities.BookEntity;
 import com.terridb.pagefolk.exceptions.ConflictException;
 import com.terridb.pagefolk.exceptions.RecordNotFoundException;
 import com.terridb.pagefolk.mappers.AuthorMapper;
+import com.terridb.pagefolk.mappers.BookMapper;
 import com.terridb.pagefolk.repositories.AuthorRepository;
+import com.terridb.pagefolk.repositories.BookRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +24,14 @@ import java.time.LocalDate;
 public class AuthorService {
     private final AuthorRepository authorRepository;
     private final AuthorMapper authorMapper;
+    private final BookRepository bookRepository;
+    private final BookMapper bookMapper;
 
-    public AuthorService(AuthorRepository authorRepository, AuthorMapper authorMapper) {
+    public AuthorService(AuthorRepository authorRepository, AuthorMapper authorMapper, BookRepository bookRepository, BookMapper bookMapper) {
         this.authorRepository = authorRepository;
         this.authorMapper = authorMapper;
+        this.bookRepository = bookRepository;
+        this.bookMapper = bookMapper;
     }
 
     public PaginatedResponse<AuthorResponseDto> getAllAuthors(
@@ -51,6 +59,19 @@ public class AuthorService {
         return authorMapper.toDto(
                 authorRepository.findById(id)
                         .orElseThrow(() -> new RecordNotFoundException("Author with id " + id + " not found")));
+    }
+
+    public PaginatedResponse<BookResponseDto> getBooksByAuthorId(Long authorId, int page, int size) {
+        if (!authorRepository.existsById(authorId)) {
+            throw new RecordNotFoundException("Author with id " + authorId + " not found");
+        }
+
+        if (page < 0) page = 0;
+        if (size <= 0 || size > 100) size = 20;
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookEntity> booksPage = bookRepository.findAllByAuthors_IdAndDeletedDateIsNull(authorId, pageable);
+        return bookMapper.toPaginatedDto(booksPage);
     }
 
     public AuthorResponseDto postAuthor(AuthorRequestDto input) {

@@ -3,6 +3,7 @@ package com.terridb.pagefolk.controllers;
 import com.terridb.pagefolk.dtos.author.AuthorFilterDto;
 import com.terridb.pagefolk.dtos.author.AuthorRequestDto;
 import com.terridb.pagefolk.dtos.author.AuthorResponseDto;
+import com.terridb.pagefolk.dtos.book.BookResponseDto;
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
 import com.terridb.pagefolk.services.AuthorService;
 import com.terridb.pagefolk.utils.UrlUtil;
@@ -36,6 +37,15 @@ public class AuthorController {
     @GetMapping("/{id}")
     public ResponseEntity<AuthorResponseDto> getAuthorById(@PathVariable Long id) {
         return ResponseEntity.ok(authorService.getAuthorById(id));
+    }
+
+    @GetMapping("/{id}/books")
+    public ResponseEntity<PaginatedResponse<BookResponseDto>> getBooksByAuthorId(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return ResponseEntity.ok(authorService.getBooksByAuthorId(id, page, size));
     }
 
     @PostMapping
