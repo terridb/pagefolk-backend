@@ -1,5 +1,6 @@
 package com.terridb.pagefolk.services;
 
+import com.terridb.pagefolk.dtos.book.BookResponseDto;
 import com.terridb.pagefolk.dtos.bookseries.BookSeriesRequestDto;
 import com.terridb.pagefolk.dtos.bookseries.BookSeriesResponseDto;
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
@@ -7,6 +8,7 @@ import com.terridb.pagefolk.entities.BookEntity;
 import com.terridb.pagefolk.entities.BookSeriesEntity;
 import com.terridb.pagefolk.exceptions.ConflictException;
 import com.terridb.pagefolk.exceptions.RecordNotFoundException;
+import com.terridb.pagefolk.mappers.BookMapper;
 import com.terridb.pagefolk.mappers.SeriesMapper;
 import com.terridb.pagefolk.repositories.BookRepository;
 import com.terridb.pagefolk.repositories.BookSeriesRepository;
@@ -27,6 +29,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +42,8 @@ class BookSeriesServiceTest {
     private BookRepository bookRepository;
     @Mock
     private SeriesMapper seriesMapper;
+    @Mock
+    private BookMapper bookMapper;
 
     @InjectMocks
     private BookSeriesService bookSeriesService;
@@ -126,6 +131,64 @@ class BookSeriesServiceTest {
         when(bookSeriesRepository.findById(100L)).thenReturn(Optional.empty());
 
         assertThrows(RecordNotFoundException.class, () -> bookSeriesService.getBookSeriesById(100L));
+    }
+
+    // getBooksBySeriesId
+
+    @Test
+    void getBooksBySeriesId_returnsPagedResults() {
+        BookEntity book = new BookEntity();
+        book.setId(1L);
+        book.setTitle("Mockingjay");
+        var bookPage = new PageImpl<>(List.of(book));
+
+        BookResponseDto bookDto = new BookResponseDto();
+        bookDto.setId(1L);
+        bookDto.setTitle("Mockingjay");
+        PaginatedResponse<BookResponseDto> bookResponse = new PaginatedResponse<>();
+        bookResponse.setContent(List.of(bookDto));
+        bookResponse.setTotalElements(1);
+
+        when(bookSeriesRepository.existsById(1L)).thenReturn(true);
+        when(bookRepository.findAllBySeries_IdAndDeletedDateIsNull(any(), any())).thenReturn(bookPage);
+        when(bookMapper.toPaginatedDto(bookPage)).thenReturn(bookResponse);
+
+        PaginatedResponse<BookResponseDto> result = bookSeriesService.getBooksBySeriesId(1L, 0, 20);
+
+        verify(bookRepository).findAllBySeries_IdAndDeletedDateIsNull(any(), any());
+        assertEquals(1, result.getContent().size());
+        assertEquals("Mockingjay", result.getContent().getFirst().getTitle());
+    }
+
+    @Test
+    void getBooksBySeriesId_seriesNotFound_throwsNotFoundException() {
+        when(bookSeriesRepository.existsById(100L)).thenReturn(false);
+
+        assertThrows(RecordNotFoundException.class, () -> bookSeriesService.getBooksBySeriesId(100L, 0, 20));
+    }
+
+    @Test
+    void getBooksBySeriesId_negativePage_clampsToZero() {
+        when(bookSeriesRepository.existsById(1L)).thenReturn(true);
+        when(bookRepository.findAllBySeries_IdAndDeletedDateIsNull(any(), argThat(p -> p.getPageNumber() == 0)))
+                .thenReturn(new PageImpl<>(List.of()));
+        when(bookMapper.toPaginatedDto(any())).thenReturn(new PaginatedResponse<>());
+
+        bookSeriesService.getBooksBySeriesId(1L, -1, 20);
+
+        verify(bookRepository).findAllBySeries_IdAndDeletedDateIsNull(any(), argThat(p -> p.getPageNumber() == 0));
+    }
+
+    @Test
+    void getBooksBySeriesId_sizeOverMax_defaultsTo20() {
+        when(bookSeriesRepository.existsById(1L)).thenReturn(true);
+        when(bookRepository.findAllBySeries_IdAndDeletedDateIsNull(any(), argThat(p -> p.getPageSize() == 20)))
+                .thenReturn(new PageImpl<>(List.of()));
+        when(bookMapper.toPaginatedDto(any())).thenReturn(new PaginatedResponse<>());
+
+        bookSeriesService.getBooksBySeriesId(1L, 0, 101);
+
+        verify(bookRepository).findAllBySeries_IdAndDeletedDateIsNull(any(), argThat(p -> p.getPageSize() == 20));
     }
 
     // postBookSeries

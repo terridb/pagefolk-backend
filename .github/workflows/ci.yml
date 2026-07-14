@@ -51,8 +51,8 @@ jobs:
           cache: 'maven'
       - name: Run all tests with JaCoCo
         run: mvn verify
-      - name: Upload JaCoCo report
+      - name: Upload JaCoCo reports
         uses: actions/upload-artifact@v7
         with:
           name: jacoco-report
-          path: target/site/jacoco/
+          path: target/site/
