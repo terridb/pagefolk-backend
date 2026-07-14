@@ -1,5 +1,6 @@
 package com.terridb.pagefolk.services;
 
+import com.terridb.pagefolk.dtos.book.BookResponseDto;
 import com.terridb.pagefolk.dtos.bookseries.BookSeriesRequestDto;
 import com.terridb.pagefolk.dtos.bookseries.BookSeriesResponseDto;
 import com.terridb.pagefolk.dtos.common.PaginatedResponse;
@@ -7,9 +8,11 @@ import com.terridb.pagefolk.entities.BookEntity;
 import com.terridb.pagefolk.entities.BookSeriesEntity;
 import com.terridb.pagefolk.exceptions.ConflictException;
 import com.terridb.pagefolk.exceptions.RecordNotFoundException;
+import com.terridb.pagefolk.mappers.BookMapper;
 import com.terridb.pagefolk.mappers.SeriesMapper;
 import com.terridb.pagefolk.repositories.BookRepository;
 import com.terridb.pagefolk.repositories.BookSeriesRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,11 +26,13 @@ public class BookSeriesService {
     private final BookSeriesRepository bookSeriesRepository;
     private final BookRepository bookRepository;
     private final SeriesMapper seriesMapper;
+    private final BookMapper bookMapper;
 
-    public BookSeriesService(BookSeriesRepository bookSeriesRepository, BookRepository bookRepository, SeriesMapper seriesMapper) {
+    public BookSeriesService(BookSeriesRepository bookSeriesRepository, BookRepository bookRepository, SeriesMapper seriesMapper, BookMapper bookMapper) {
         this.bookSeriesRepository = bookSeriesRepository;
         this.bookRepository = bookRepository;
         this.seriesMapper = seriesMapper;
+        this.bookMapper = bookMapper;
     }
 
     public PaginatedResponse<BookSeriesResponseDto> getAllBookSeries(int page, int size) {
@@ -42,6 +47,19 @@ public class BookSeriesService {
         return seriesMapper.toDto(
                 bookSeriesRepository.findById(id)
                         .orElseThrow(() -> new RecordNotFoundException("Book series with id " + id + " not found")));
+    }
+
+    public PaginatedResponse<BookResponseDto> getBooksBySeriesId(Long seriesId, int page, int size) {
+        if (!bookSeriesRepository.existsById(seriesId)) {
+            throw new RecordNotFoundException("Book series with id " + seriesId + " not found");
+        }
+
+        if (page < 0) page = 0;
+        if (size <= 0 || size > 100) size = 20;
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookEntity> booksPage = bookRepository.findAllBySeries_IdAndDeletedDateIsNull(seriesId, pageable);
+        return bookMapper.toPaginatedDto(booksPage);
     }
 
     public BookSeriesResponseDto postBookSeries(BookSeriesRequestDto input) {

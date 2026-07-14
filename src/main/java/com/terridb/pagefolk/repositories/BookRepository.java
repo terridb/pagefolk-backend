@@ -17,6 +17,8 @@ public interface BookRepository extends JpaRepository<BookEntity, Long> {
 
     Page<BookEntity> findAllByGenres_IdAndDeletedDateIsNull(Long genreId, Pageable pageable);
 
+    Page<BookEntity> findAllBySeries_IdAndDeletedDateIsNull(Long seriesId, Pageable pageable);
+
     @Query("""
         SELECT DISTINCT b FROM BookEntity b
         LEFT JOIN b.authors a
