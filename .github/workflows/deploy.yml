@@ -1,8 +1,8 @@
 name: Deploy to Production
 
+# Disabled: the Render service has been shut down. Run manually from the Actions tab if it is ever restored.
 on:
-  repository_dispatch:
-    types: [ deploy-production ]
+  workflow_dispatch:
 
 jobs:
   deploy:

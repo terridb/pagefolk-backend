@@ -93,6 +93,15 @@ docker compose up --build
 | API      | 8080 |
 | Keycloak | 9090 |
 
+## CI/CD
+
+GitHub Actions workflows in `.github/workflows/`:
+
+- **`ci.yml`**: Checkstyle and unit tests on feature branches; full test suite with JaCoCo coverage on pull requests to `main`.
+- **`cd.yml`**: on push to `main`, calculates a semantic version, builds the Docker image, scans it with Trivy and pushes it to GitHub Container Registry.
+- **`security.yml`**: weekly Trivy scan of the latest published image.
+- **`deploy.yml`**: deploys to Render via a deploy hook and runs a health-check smoke test. Currently disabled (manual trigger only) because the hosting has been shut down.
+
 ## API overview
 
 All write operations require a valid JWT bearer token. Roles used for authorization: `ADMIN`, `MODERATOR`.
